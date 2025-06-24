@@ -1,0 +1,65 @@
+language: "ko"
+early_access: false
+
+reviews:
+  profile: "assertive" # 더 적극적인 리뷰로 품질 향상
+
+  high_level_summary_placeholder: "@coderabbitai summary"
+  auto_title_placeholder: "@coderabbitai"
+  auto_title_instructions: "Conventional Commits 형식을 따르며 'feat:', 'fix:' 등의 prefix를 사용해주세요."
+
+  # Java 프로젝트용 필터 설정 (비용 절감 및 노이즈 감소)
+  path_filters:
+    - "!build/**"
+    - "!target/**"
+    - "!.idea/**"
+    - "!src/main/generated/**"
+    - "!**/*.md"
+
+  path_instructions:
+    # 1. API 엔드포인트: Controller Layer
+    - path: "src/main/java/**/*Controller.java"
+      instructions: |
+        이 파일은 API의 진입점인 컨트롤러입니다. 다음 사항을 중점적으로 검토해주세요:
+        1.  **책임 분리**: 컨트롤러는 요청/응답 처리, 데이터 변환(DTO), 유효성 검사에만 집중해야 합니다. 복잡한 비즈니스 로직이 서비스 레이어로 잘 위임되었는지 확인해주세요.
+        2.  **DTO 사용**: Request Body나 Response Body에 Entity 객체를 직접 노출하지 않고, 전용 DTO(Data Transfer Object)를 사용하는지 확인해주세요. 이는 API 스펙 변경과 내부 도메인 모델을 분리하는 중요한 원칙입니다.
+        3.  **유효성 검사**: `@Valid` 어노테이션과 Jakarta Bean Validation(e.g., `@NotBlank`, `@Size`)을 사용하여 요청 데이터의 유효성을 철저히 검사하는지 확인해주세요.
+    # 2. 비즈니스 로직: Service Layer
+    - path: "src/main/java/**/*Service.java"
+      instructions: |
+        이 파일은 핵심 비즈니스 로직을 담고 있는 서비스 레이어입니다. 기본적으로 비즈니스 로직이 잘 설정되어있는지 확인해주세요.
+        1.  **트랜잭션 관리**: 데이터의 일관성이 중요한 비즈니스 로직에는 `@Transactional` 어노테이션이 적절히 사용되었는지 확인해주세요. 특히, 읽기 전용 로직에는 `readOnly = true` 옵션이 있는지 검토하면 좋습니다.
+        2.  **명확한 예외 처리**: 단순히 `Exception`을 던지기보다, 비즈니스 상황에 맞는 커스텀 예외(e.g., `UserNotFoundException`, `InsufficientStockException`)를 정의하고 사용하는지 확인해주세요.
+        3.  **응집도와 단일 책임**: 하나의 서비스 메소드가 너무 많은 일을 하지는 않는지, 관련된 로직끼리 잘 묶여있는지(높은 응집도) 확인해주세요.
+        4.  **외부 시스템 호출**: 외부 API를 호출하는 로직이 있다면, 타임아웃 설정, 재시도 로직(e.g., Spring Retry), 서킷 브레이커(e.g., Resilience4J) 패턴이 적용되었는지 검토해주세요.
+    # 3. 데이터 접근 계층: Repository Layer
+    - path: "src/main/java/**/*Repository.java"
+      instructions: |
+        이 파일은 JPA 또는 기타 데이터 접근 기술을 사용하는 Repository입니다. 다음 사항을 확인해주세요:
+        1. **쿼리 메서드의 네이밍**: 메서드 이름이 명확하고, JPA의 네이밍 규칙에 맞게 작성되었는지 확인해주세요. (예: `findByEmailAndStatus`)
+        2. **JPQL 또는 Native Query 사용 시**: `@Query`를 사용할 경우, 쿼리의 성능과 유지보수성을 고려한 설계인지 검토해주세요.
+        3. **Optional 사용**: `findById`나 `findByEmail`처럼 null이 올 수 있는 반환값에는 `Optional`을 적절히 사용하고 있는지 확인해주세요.
+        4. **조회 전용/수정 쿼리 분리**: `@Modifying` 쿼리와 `@Transactional` 범위가 적절히 분리되어 있는지 확인해주세요.
+        5. **도메인 주도 설계(Domain-Driven Design)** 원칙에 따라 Repository가 지나치게 복잡한 쿼리 책임을 갖고 있지는 않은지, QueryDSL이나 Custom Repository로 위임이 필요한지 고려해주세요.
+    # 4. 테스트 코드
+    - path: "src/test/java/**/*.java"
+      instructions: |
+        이 파일은 테스트 코드입니다.
+        1.  **명확한 테스트 이름**: `@DisplayName`을 사용하거나 테스트 메소드 이름을 통해 테스트의 의도가 명확히 드러나는지 확인해주세요. (e.g., `whenUserExists_thenReturnsUserDto`)
+        2.  **BDD 스타일**: Given-When-Then (또는 Arrange-Act-Assert) 구조를 잘 따르는지 검토해주세요. 이는 테스트의 가독성을 크게 향상시킵니다.
+        3.  **Mocking**: 의존하는 객체들을 `@MockBean`이나 `Mockito`를 사용하여 적절히 Mocking하고 있는지, 불필요한 실제 객체를 생성하여 통합 테스트처럼 동작하지는 않는지 확인해주세요.
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_walkthrough: true # 긴 리뷰 요약을 접어서 깔끔하게 표시
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "develop"
+      - "dev"
+      - "release"
+chat:
+  auto_reply: true

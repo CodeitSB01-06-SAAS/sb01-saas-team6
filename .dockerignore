@@ -1,0 +1,20 @@
+# Gradle 캐시 디렉토리
+**/.gradle
+.gradle
+
+# 빌드 결과물
+build
+out
+
+# IntelliJ 설정 파일
+.idea
+*.iml
+
+# 로그
+*.log
+
+# Mac OS 파일
+.DS_Store
+
+# 환경변수
+.env

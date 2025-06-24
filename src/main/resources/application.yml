@@ -1,1 +1,14 @@
-spring.application.name=sb01-saas-team06
+spring:
+  application:
+    name: sb01-saas-team06
+  profiles:
+    active: dev
+
+logging:
+  level:
+    root: info
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-custom-ui.html
