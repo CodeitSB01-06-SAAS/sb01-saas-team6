@@ -13,22 +13,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FeedRepository extends JpaRepository<Feed, UUID> {
 
-  /**
 
   @Query("""
       SELECT f FROM Feed f
       JOIN FETCH f.weather w
-      WHERE (:keyword IS NULL OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
-        AND (:weatherType IS NULL OR w.type = :weatherType)
-        AND (:isRaining IS NULL OR w.isRaining = :isRaining)
-        AND ((:cursorCreatedAt IS NULL) OR
-             (f.createdAt < :cursorCreatedAt OR (f.createdAt = :cursorCreatedAt AND f.id < :cursorId)))
+      WHERE (:keyword IS NULL 
+             OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:skyStatus IS NULL OR w.skyStatus = :skyStatus)
+        AND (:precipType IS NULL 
+             OR w.precipitationType = :precipitationType)
+        AND ( :cursorCreatedAt IS NULL
+              OR (f.createdAt < :cursorCreatedAt
+                  OR (f.createdAt = :cursorCreatedAt 
+                      AND f.id < :cursorId)) )
       ORDER BY f.createdAt DESC, f.id DESC
       """)
   List<Feed> findFeedsByCreatedAtCursor(
       @Param("keyword") String keyword,
-      @Param("weatherType") String weatherType,
-      @Param("isRaining") Boolean isRaining,
+      @Param("skyStatus") String skyStatus,
+      @Param("precipitationType") String precipitationType,
       @Param("cursorCreatedAt") Instant cursorCreatedAt,
       @Param("cursorId") UUID cursorId,
       Pageable pageable
@@ -37,21 +40,26 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
   @Query("""
       SELECT f FROM Feed f
       JOIN FETCH f.weather w
-      WHERE (:keyword IS NULL OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
-        AND (:weatherType IS NULL OR w.type = :weatherType)
-        AND (:isRaining IS NULL OR w.isRaining = :isRaining)
-        AND ((:cursorLikeCount IS NULL) OR
-             (f.likeCount < :cursorLikeCount OR (f.likeCount = :cursorLikeCount AND f.id < :cursorId)))
+      WHERE (:keyword IS NULL 
+             OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:skyStatus IS NULL OR w.skyStatus = :skyStatus)
+        AND (:precipitationType IS NULL OR w.precipitationType = :precipitationType)
+        AND (
+          :cursorLikeCount IS NULL
+          OR (f.likeCount < :cursorLikeCount
+              OR (f.likeCount = :cursorLikeCount 
+                  AND f.id < :cursorId))
+        )
       ORDER BY f.likeCount DESC, f.id DESC
       """)
   List<Feed> findFeedsByLikeCountCursor(
       @Param("keyword") String keyword,
-      @Param("weatherType") String weatherType,
-      @Param("isRaining") Boolean isRaining,
+      @Param("skyStatus") String skyStatus,
+      @Param("precipitationType") String precipitationType,
       @Param("cursorLikeCount") Long cursorLikeCount,
       @Param("cursorId") UUID cursorId,
       Pageable pageable
   );
-   **/
+
 
 }
