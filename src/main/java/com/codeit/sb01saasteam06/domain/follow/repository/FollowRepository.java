@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface FollowRepository extends JpaRepository<Follow, UUID> {
 
     boolean existsByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
+    @Modifying
     void deleteByFollowerIdAndFolloweeId(UUID followerId, UUID followeeId);
 
     long countByFollowerId(UUID followerId);   // 내가 팔로잉하는 수
