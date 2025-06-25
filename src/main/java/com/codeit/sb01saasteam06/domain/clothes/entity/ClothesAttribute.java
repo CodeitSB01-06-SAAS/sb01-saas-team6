@@ -35,5 +35,4 @@ public class ClothesAttribute extends BaseUpdatableEntity {
     this.attributesDef = attributesDef;
     this.value = value;
   }
-
 }
