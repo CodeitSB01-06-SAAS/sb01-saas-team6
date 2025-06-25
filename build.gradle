@@ -67,5 +67,5 @@ sourceSets {
 }
 
 clean {
-    delete file('src/main/generated')
+    delete file('build/generated/querydsl')
 }
