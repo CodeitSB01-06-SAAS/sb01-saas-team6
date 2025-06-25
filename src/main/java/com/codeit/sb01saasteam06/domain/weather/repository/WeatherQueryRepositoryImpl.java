@@ -45,7 +45,7 @@ public class WeatherQueryRepositoryImpl implements WeatherQueryRepository {
     @Override
     public Optional<Location> latestLocation(double lat, double lon) {
 
-        Location loc = q.select(w.location)          // Projection: 임베디드 자체 반환
+        Location loc = q.select(w.location)
             .from(w)
             .where(w.location.latitude.eq(lat)
                 .and(w.location.longitude.eq(lon)))
