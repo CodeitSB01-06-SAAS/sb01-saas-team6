@@ -1,6 +1,7 @@
 package com.codeit.sb01saasteam06.domain.feed.entity;
 
 import com.codeit.sb01saasteam06.domain.base.BaseUpdatableEntity;
+import com.codeit.sb01saasteam06.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;

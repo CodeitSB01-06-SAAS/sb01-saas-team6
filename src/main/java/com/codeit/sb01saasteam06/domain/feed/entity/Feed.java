@@ -1,6 +1,8 @@
 package com.codeit.sb01saasteam06.domain.feed.entity;
 
 import com.codeit.sb01saasteam06.domain.base.BaseUpdatableEntity;
+import com.codeit.sb01saasteam06.domain.user.entity.User;
+import com.codeit.sb01saasteam06.domain.weather.entity.Weather;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -71,9 +73,9 @@ public class Feed extends BaseUpdatableEntity {
   }
 
   public void removeComment(Comment comment) {
-   this.comments.remove(comment);
-   comment.setFeed(null);
-   this.commentCount--;
+    this.comments.remove(comment);
+    comment.setFeed(null);
+    this.commentCount--;
   }
 
   public void like() {
