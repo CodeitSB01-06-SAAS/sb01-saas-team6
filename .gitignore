@@ -24,6 +24,7 @@ build/
 # Environment variables
 .env
 *.env
+.env
 
 ### STS ###
 .apt_generated
@@ -55,6 +56,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### Mac OS 파일 ###
-.DS_Store
