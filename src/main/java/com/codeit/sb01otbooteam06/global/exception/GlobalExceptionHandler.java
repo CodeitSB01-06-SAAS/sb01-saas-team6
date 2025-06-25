@@ -30,14 +30,14 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * saas 커스텀 예외에 대한 처리를 합니다.
+   * otboo 커스텀 예외에 대한 처리를 합니다.
    *
    * @param exception
    * @return 해당 exception에 대한 에러 응답
    */
-  @ExceptionHandler(SaasException.class)
+  @ExceptionHandler(OtbooException.class)
   protected ResponseEntity<ErrorResponse>
-  handleRuntimeException(SaasException exception) {
+  handleRuntimeException(OtbooException exception) {
     log.error("커스텀 예외 발생: code = {}, message = {}", exception.getErrorCode(),
         exception.getMessage());
     HttpStatus status = determineHttpStatus(exception);
@@ -46,12 +46,12 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Saas 예외에 대한 상태코드를 처리합니다.
+   * otboo 예외에 대한 상태코드를 처리합니다.
    *
    * @param exception
    * @return 해당 exception에 대한 상태코드
    */
-  private HttpStatus determineHttpStatus(SaasException exception) {
+  private HttpStatus determineHttpStatus(OtbooException exception) {
     ErrorCode errorCode = exception.getErrorCode();
     return switch (errorCode) {
 

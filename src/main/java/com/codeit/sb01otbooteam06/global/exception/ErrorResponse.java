@@ -20,7 +20,7 @@ public class ErrorResponse {
   private final String exceptionType;
   private final int status;
 
-  public ErrorResponse(SaasException exception, int status) {
+  public ErrorResponse(OtbooException exception, int status) {
     this(Instant.now(), exception.getErrorCode().name(), exception.getMessage(),
         exception.getDetails(),
         exception.getClass().getSimpleName(), status);
