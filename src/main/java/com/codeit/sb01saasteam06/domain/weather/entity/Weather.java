@@ -102,7 +102,7 @@ public class Weather extends BaseUpdatableEntity {
 
     /* ---------- 편의 메서드 ---------- */
     public void addLocationName(String name) {
-        WeatherLocationName ln = WeatherLocationName.of(this, name);
+        WeatherLocationName ln = WeatherLocationName.from(this, name);
         this.locationNames.add(ln);   // 양방향 컬렉션 동기화
     }
 }
