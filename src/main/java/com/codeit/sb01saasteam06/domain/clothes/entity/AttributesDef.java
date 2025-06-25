@@ -24,4 +24,9 @@ public class AttributesDef extends BaseUpdatableEntity {
   @Column(name = "selectable_values", columnDefinition = "text[]", nullable = false)
   private String[] selectableValues;
 
+  public AttributesDef(String name, String[] selectableValues) {
+    this.name = name;
+    this.selectableValues = selectableValues;
+  }
+
 }

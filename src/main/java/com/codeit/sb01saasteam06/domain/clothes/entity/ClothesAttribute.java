@@ -30,5 +30,10 @@ public class ClothesAttribute extends BaseUpdatableEntity {
   @Column(name = "value", nullable = false)
   private String value;
 
+  public ClothesAttribute(Clothes clothes, AttributesDef attributesDef, String value) {
+    this.clothes = clothes;
+    this.attributesDef = attributesDef;
+    this.value = value;
+  }
 
 }
