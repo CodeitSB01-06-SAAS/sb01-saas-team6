@@ -1,0 +1,31 @@
+spring:
+#  sql:
+#    init:
+#      mode: always      # 항상 schema.sql, data.sql 실행
+#      schema-locations:  classpath:schema.sql
+#      data-locations: classpath:data.sql
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Otboo
+    driver-class-name: org.postgresql.Driver
+    username: Otboo
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        generate_statistics: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        sql: debug
+        type.descriptor.sql: trace

@@ -1,4 +1,4 @@
-package com.codeit.sb01saasteam06.config;
+package com.codeit.sb01otbooteam06.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
