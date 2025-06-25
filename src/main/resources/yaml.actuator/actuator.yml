@@ -25,7 +25,7 @@ management:
 
 info:
   app:
-    name: saas
+    name: otboo
     version: 1.0.0
 
 server:
