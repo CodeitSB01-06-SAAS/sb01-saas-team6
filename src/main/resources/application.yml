@@ -1,6 +1,6 @@
 spring:
   application:
-    name: sb01-saas-team06
+    name: otboo
   profiles:
     active: dev
 
