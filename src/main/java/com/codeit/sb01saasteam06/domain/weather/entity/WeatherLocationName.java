@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class WeatherLocationName extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "weather_id")
+    @JoinColumn(name = "weather_id", nullable = false)
     private Weather weather;
 
     private String locationName;
@@ -27,7 +27,7 @@ public class WeatherLocationName extends BaseEntity {
         this.locationName = locationName;
     }
 
-    public static WeatherLocationName of(Weather weather, String locationName) {
+    public static WeatherLocationName from(Weather weather, String locationName) {
         return new WeatherLocationName(weather, locationName);
     }
 }

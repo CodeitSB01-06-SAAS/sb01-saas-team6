@@ -76,7 +76,7 @@ public class Weather extends BaseUpdatableEntity {
     /**
      * 필수 값만 받는 생성자
      */
-    public static Weather of(Instant forecastedAt,
+    public static Weather from(Instant forecastedAt,
         Instant forecastAt, double lat, double lon, int x, int y, SkyStatus skyStatus) {
         return new Weather(forecastedAt, forecastAt, Location.of(lat, lon, x, y), skyStatus);
     }
@@ -84,7 +84,7 @@ public class Weather extends BaseUpdatableEntity {
     /**
      * 위치 이름 목록까지 한 번에 넣는 팩터리
      */
-    public static Weather ofWithLocations(Instant forecastedAt,
+    public static Weather fromWithLocations(Instant forecastedAt,
         Instant forecastAt,
         double lat, double lon, int x, int y,
         SkyStatus skyStatus,

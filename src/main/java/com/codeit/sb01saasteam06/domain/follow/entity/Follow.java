@@ -33,7 +33,7 @@ public class Follow extends BaseEntity {
         this.followeeId = followeeId;
     }
 
-    public static Follow of(UUID followerId, UUID followeeId) {
+    public static Follow from(UUID followerId, UUID followeeId) {
         return new Follow(followerId, followeeId);
     }
 }
