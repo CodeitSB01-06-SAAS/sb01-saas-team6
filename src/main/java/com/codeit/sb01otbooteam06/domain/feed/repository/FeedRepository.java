@@ -88,4 +88,4 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
       @Param("precipitationType") String precipitationType
   );
 
-}순
+}
