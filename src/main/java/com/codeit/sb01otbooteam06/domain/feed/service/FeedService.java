@@ -1,8 +1,9 @@
 package com.codeit.sb01otbooteam06.domain.feed.service;
 
-import com.codeit.sb01otbooteam06.domain.feed.dto.FeedDto;
+import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedUpdateRequest;
+import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDtoCursorResponse;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public interface FeedService {
 
   void deleteFeed(UUID feedId);
 
-  List<FeedDto> getFeedsByCursor(
+  FeedDtoCursorResponse getFeedsByCursor(
       String keyword,
       String skyStatus,
       String precipitationType,

@@ -13,7 +13,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FeedRepository extends JpaRepository<Feed, UUID> {
 
-
+  /**
+   * 필터링 조건(keyword, skyStatus, precipitationType)에 맞춘
+   * 전체 피드 페이지네이션 검색 생성일
+   */
   @Query("""
       SELECT f FROM Feed f
       JOIN FETCH f.weather w
@@ -37,10 +40,14 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
       Pageable pageable
   );
 
+  /**
+   * 필터링 조건(keyword, skyStatus, precipitationType)에 맞춘
+   * 전체 피드 페이지네이션 검색 좋아요 순
+   */
   @Query("""
       SELECT f FROM Feed f
       JOIN FETCH f.weather w
-      WHERE (:keyword IS NULL 
+      WHERE (:keyword IS NULL
              OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
         AND (:skyStatus IS NULL OR w.skyStatus = :skyStatus)
         AND (:precipitationType IS NULL OR w.precipitationType = :precipitationType)
@@ -62,4 +69,23 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
   );
 
 
-}
+  /**
+   * 필터링 조건(keyword, skyStatus, precipitationType)에 맞춘
+   * 전체 피드 개수 조회용 메서드
+   */
+  @Query("""
+      SELECT COUNT(f)
+      FROM Feed f
+      JOIN f.weather w
+      WHERE (:keyword IS NULL
+             OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (:skyStatus IS NULL OR w.skyStatus = :skyStatus)
+        AND (:precipitationType IS NULL OR w.precipitationType = :precipitationType)
+      """)
+  long countByFilters(
+      @Param("keyword") String keyword,
+      @Param("skyStatus") String skyStatus,
+      @Param("precipitationType") String precipitationType
+  );
+
+}순

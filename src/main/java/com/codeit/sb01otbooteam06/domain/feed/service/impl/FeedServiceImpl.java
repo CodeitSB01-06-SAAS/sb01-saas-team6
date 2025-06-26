@@ -1,8 +1,9 @@
 package com.codeit.sb01otbooteam06.domain.feed.service.impl;
 
-import com.codeit.sb01otbooteam06.domain.feed.dto.FeedDto;
+import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedUpdateRequest;
+import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDtoCursorResponse;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
 import com.codeit.sb01otbooteam06.domain.feed.repository.FeedRepository;
 import com.codeit.sb01otbooteam06.domain.feed.service.FeedService;
@@ -16,7 +17,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,28 +73,47 @@ public class FeedServiceImpl implements FeedService {
     feedRepository.deleteById(feedId);
   }
 
+
+  // todo : 나중에 이넘 타입인지 확인 할것, 날씨 부분
   @Override
-  public List<FeedDto> getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
+  public FeedDtoCursorResponse getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
       Instant cursorCreatedAt, UUID cursorId, Long cursorLikeCount, int size, String sortBy) {
+
     PageRequest pageReq = PageRequest.of(0, size);
+    List<Feed> feeds = "likeCount".equalsIgnoreCase(sortBy)
+        ? feedRepository.findFeedsByLikeCountCursor(
+        keyword, skyStatus, precipitationType, cursorLikeCount, cursorId, pageReq
+    )
+        : feedRepository.findFeedsByCreatedAtCursor(
+            keyword, skyStatus, precipitationType, cursorCreatedAt, cursorId, pageReq
+        );
 
-    List<Feed> feeds;
-    if ("likeCount".equalsIgnoreCase(sortBy)) {
-      feeds = feedRepository.findFeedsByLikeCountCursor(
-          keyword, skyStatus, precipitationType,
-          cursorLikeCount, cursorId,
-          pageReq
-      );
-    } else {
-      feeds = feedRepository.findFeedsByCreatedAtCursor(
-          keyword, skyStatus, precipitationType,
-          cursorCreatedAt, cursorId,
-          pageReq
-      );
-    }
-
-    return feeds.stream()
+    List<FeedDto> data = feeds.stream()
         .map(FeedDto::fromEntity)
         .toList();
+
+    boolean hasNext = data.size() == size;
+    String nextCursor = null;
+    UUID nextIdAfter = null;
+
+    if(hasNext) {
+      Feed last = feeds.get(feeds.size() - 1);
+      nextIdAfter = last.getId();
+      nextCursor = "likeCount".equalsIgnoreCase(sortBy)
+          ? String.valueOf(last.getLikeCount())
+          : last.getCreatedAt().toString();
+    }
+
+    long totalCount = feedRepository.countByFilters(keyword, skyStatus, precipitationType);
+
+    return new FeedDtoCursorResponse(
+        data,
+        nextCursor,
+        nextIdAfter,
+        hasNext,
+        totalCount,
+        sortBy,
+        "DESC"
+    );
   }
 }

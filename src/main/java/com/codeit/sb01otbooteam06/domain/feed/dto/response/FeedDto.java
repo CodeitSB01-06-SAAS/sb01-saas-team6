@@ -1,4 +1,4 @@
-package com.codeit.sb01otbooteam06.domain.feed.dto;
+package com.codeit.sb01otbooteam06.domain.feed.dto.response;
 
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
 import java.time.Instant;
