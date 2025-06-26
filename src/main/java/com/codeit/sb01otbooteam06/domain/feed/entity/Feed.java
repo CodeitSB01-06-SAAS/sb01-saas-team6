@@ -29,10 +29,10 @@ public class Feed extends BaseUpdatableEntity {
   private String content;
 
   @Column(nullable = false)
-  private Long likeCount = 0L;
+  private long likeCount = 0L;
 
   @Column(nullable = false)
-  private Integer commentCount = 0;
+  private int commentCount = 0;
 
   @Transient
   private boolean likedByMe;
@@ -50,17 +50,17 @@ public class Feed extends BaseUpdatableEntity {
   private List<Comment> comments = new ArrayList<>();
 
 
-  public Feed(String content, Long likeCount, Integer commentCount, boolean likedByMe, User user,
-      Weather weather) {
+  public Feed(String content, User user, Weather weather) {
     this.content = content;
-    this.likeCount = likeCount;
-    this.commentCount = commentCount;
-    this.likedByMe = likedByMe;
     this.user = user;
     this.weather = weather;
   }
 
-  public void update(String newContent) {
+  public static Feed of(String content, User user, Weather weather) {
+    return new Feed(content, user, weather);
+  }
+
+  public void updateContent(String newContent) {
     if (newContent != null && !newContent.equals(this.content)) {
       this.content = newContent;
     }

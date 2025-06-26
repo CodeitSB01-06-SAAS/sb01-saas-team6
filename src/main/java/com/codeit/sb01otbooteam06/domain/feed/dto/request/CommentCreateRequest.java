@@ -1,0 +1,21 @@
+package com.codeit.sb01otbooteam06.domain.feed.dto.request;
+
+import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class CommentCreateRequest {
+
+  @NotNull(message = "피드 ID는 필수입니다")
+  private UUID feedId;
+
+  @NotNull(message = "작성자 ID는 필수입니다")
+  private UUID authorId;
+
+  private String content;
+
+}
