@@ -20,7 +20,7 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
   @Query("""
       SELECT f FROM Feed f
       JOIN FETCH f.weather w
-      WHERE (:keyword IS NULL 
+      WHERE (:keyword IS NULL
              OR LOWER(f.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
         AND (:skyStatus IS NULL OR w.skyStatus = :skyStatus)
         AND (:precipType IS NULL 
@@ -54,7 +54,7 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
         AND (
           :cursorLikeCount IS NULL
           OR (f.likeCount < :cursorLikeCount
-              OR (f.likeCount = :cursorLikeCount 
+              OR (f.likeCount = :cursorLikeCount
                   AND f.id < :cursorId))
         )
       ORDER BY f.likeCount DESC, f.id DESC

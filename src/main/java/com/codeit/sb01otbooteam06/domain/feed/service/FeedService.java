@@ -19,15 +19,7 @@ public interface FeedService {
 
   void deleteFeed(UUID feedId);
 
-  FeedDtoCursorResponse getFeedsByCursor(
-      String keyword,
-      String skyStatus,
-      String precipitationType,
-      Instant cursorCreatedAt,
-      UUID cursorId,
-      Long cursorLikeCount,
-      int size,
-      String sortBy
-  );
+  FeedDtoCursorResponse getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
+      Instant cursorCreatedAt, UUID cursorId, Long cursorLikeCount, int size, String sortBy);
 
 }
