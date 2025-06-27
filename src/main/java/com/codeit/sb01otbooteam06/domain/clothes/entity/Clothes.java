@@ -20,7 +20,7 @@ public class Clothes extends BaseUpdatableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "owner_id", nullable = false)
-  private User user;
+  private User owner;
 
   @Column(name = "name", nullable = false)
   private String name;
@@ -28,9 +28,21 @@ public class Clothes extends BaseUpdatableEntity {
   @Column(name = "type", nullable = false)
   private String type;
 
-  public Clothes(String name, String type) {
+  @Column(name = "imageUrl", nullable = true)
+  private String imageUrl;
+
+  public Clothes(User owner, String name, String type, String imageUrl) {
+    this.owner = owner;
     this.name = name;
     this.type = type;
+    this.imageUrl = imageUrl;
 
+  }
+
+  public void update(String name, String type, String imageUrl
+  ) {
+    this.name = name;
+    this.type = type;
+    this.imageUrl = imageUrl;
   }
 }
