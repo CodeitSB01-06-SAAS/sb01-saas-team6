@@ -1,13 +1,9 @@
 package com.codeit.sb01otbooteam06.domain.clothes.entity.dto;
 
-import java.util.List;
-import java.util.UUID;
-
-//의상 조회시 반환하는 attributesDef dto
+//의상 등록시 의상에 대한 속성 밸류 정보 (중간 테이블 생성용 )
 public record ClothesAttributeDto(
-    UUID definitionId,
-    String definitionName,
-    List<String> selectableValues
+    String definitionId,
+    String value
 ) {
 
 }

@@ -9,7 +9,7 @@ public record ClothesDto(
     String name,
     String imageUrl,
     String type,
-    List<ClothesAttributeDto> clothesAttributeDtos
+    List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
 ) {
 
 }
