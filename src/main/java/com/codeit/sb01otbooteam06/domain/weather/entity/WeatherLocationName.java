@@ -16,18 +16,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WeatherLocationName extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "weather_id", nullable = false)
-  private Weather weather;
+  @ManyToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name="forecast_id", nullable=false)
+  private WeatherForecast forecast;
 
   private String locationName;
 
-  private WeatherLocationName(Weather weather, String locationName) {
-    this.weather = weather;
-    this.locationName = locationName;
+  private WeatherLocationName(WeatherForecast fc, String name){
+    this.forecast = fc; this.locationName = name;
   }
-
-  public static WeatherLocationName from(Weather weather, String locationName) {
-    return new WeatherLocationName(weather, locationName);
+  public static WeatherLocationName from(WeatherForecast fc, String name){
+    return new WeatherLocationName(fc, name);
   }
 }

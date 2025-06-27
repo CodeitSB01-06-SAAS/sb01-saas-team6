@@ -1,7 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.weather.repository;
 
 import com.codeit.sb01otbooteam06.domain.weather.entity.Location;
-import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import java.util.List;
 import java.util.Optional;
 

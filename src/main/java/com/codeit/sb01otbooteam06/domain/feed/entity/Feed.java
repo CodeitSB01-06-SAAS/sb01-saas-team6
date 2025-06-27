@@ -2,7 +2,6 @@ package com.codeit.sb01otbooteam06.domain.feed.entity;
 
 import com.codeit.sb01otbooteam06.domain.base.BaseUpdatableEntity;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
-import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

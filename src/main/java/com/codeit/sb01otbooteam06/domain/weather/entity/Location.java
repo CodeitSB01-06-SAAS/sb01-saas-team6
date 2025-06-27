@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(staticName = "of")   // 편의용
+@AllArgsConstructor(staticName = "from")   // 편의용
 public class Location {
 
   @Column(nullable = false)
@@ -18,8 +18,8 @@ public class Location {
   @Column(nullable = false)
   private Double longitude;
 
-  @Column(name = "x", nullable = false)
+  @Column(name = "grid_x", nullable = false)
   private Integer x;
-  @Column(name = "y", nullable = false)
+  @Column(name = "grid_y", nullable = false)
   private Integer y;
 }
