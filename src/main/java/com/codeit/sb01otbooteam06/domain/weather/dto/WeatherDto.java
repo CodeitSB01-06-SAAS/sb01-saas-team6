@@ -21,8 +21,8 @@ public record WeatherDto(
 ) {
     public record Loc(double latitude, double longitude, int x, int y, List<String> locationNames){}
     public record Precipitation(PrecipitationType type, double amount, double probability){}
-    public record Humidity(double current,double comparedToDayBefore){}
-    public record Temperature(double current,double comparedToDayBefore,
+    public record Humidity(double current,Double comparedToDayBefore){}
+    public record Temperature(double current,Double comparedToDayBefore,
                               Double min,Double max){}
     public record WindSpeed(double speed,String asWord){}
 }

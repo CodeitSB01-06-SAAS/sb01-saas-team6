@@ -142,10 +142,7 @@ public class WeatherService {
         WeatherDto.Humidity hDto = new WeatherDto.Humidity(
             curH, yH == null ? null : curH - yH);
 
-        WeatherDto.Precipitation pDto = new WeatherDto.Precipitation(
-            w.getPrecipitationType(),
-            ofNullable(w.getPrecipitation().getAmount()).orElse(0.0),
-            ofNullable(w.getPrecipitation().getProbability()).orElse(0.0));
+        WeatherDto.Precipitation pDto = toPrecip(w);
 
         double spd = ofNullable(w.getWind().getSpeed()).orElse(0.0);
         String word = spd < 4 ? "WEAK" : spd < 9 ? "MODERATE" : "STRONG";
@@ -164,6 +161,16 @@ public class WeatherService {
             pDto, hDto, tDto, wsDto);
     }
 
+    private static WeatherDto.Precipitation toPrecip(Weather w) {
+        if (w.getPrecipitation() == null) {
+            return new WeatherDto.Precipitation(
+                w.getPrecipitationType(), 0.0, 0.0);
+        }
+        return new WeatherDto.Precipitation(
+            w.getPrecipitationType(),
+            ofNullable(w.getPrecipitation().getAmount()).orElse(0.0),
+            ofNullable(w.getPrecipitation().getProbability()).orElse(0.0));
+    }
     /* ---------- min/max 채우기 ---------- */
     private static void fillMinMax(List<Weather> bundle) {
 

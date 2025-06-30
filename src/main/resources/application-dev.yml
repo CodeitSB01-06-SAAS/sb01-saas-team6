@@ -36,5 +36,5 @@ logging:
   level:
     org:
       hibernate:
-        sql: debug
+        sql: warn
         type.descriptor.sql: trace
