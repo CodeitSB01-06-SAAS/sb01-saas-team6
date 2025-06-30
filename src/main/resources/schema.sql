@@ -12,8 +12,8 @@ DROP TABLE IF EXISTS
     users,
     weather_location_names,
     weathers
-;
-DROP TYPE IF EXISTS notification_type;
+    CASCADE;
+DROP TYPE IF EXISTS notification_type CASCADE;
 
 CREATE TABLE weathers
 (
@@ -24,8 +24,8 @@ CREATE TABLE weathers
     lon                       DOUBLE PRECISION NOT NULL,
     grid_x                    SMALLINT         NOT NULL,
     grid_y                    SMALLINT         NOT NULL,
-    sky_status                VARCHAR(12)      NOT NULL, -- CLEAR / MOSTLY_CLOUDY / CLOUDY
-    pty_type                  VARCHAR(15)      NOT NULL, -- RAIN / SNOW …
+    sky_status                VARCHAR(15)      NOT NULL, -- CLEAR / MOSTLY_CLOUDY / CLOUDY
+    precipitation_type        VARCHAR(15)      NOT NULL, -- RAIN / SNOW …
     temperature_current       DOUBLE PRECISION,
     temperature_min           DOUBLE PRECISION,
     temperature_max           DOUBLE PRECISION,
@@ -178,7 +178,7 @@ CREATE TABLE clothes
     owner_id   UUID        NOT NULL,
     name       VARCHAR(40) NOT NULL,
     type       VARCHAR(20) NOT NULL,
-    image_url   TEXT        NOT NULL,
+    image_url  TEXT        NOT NULL,
     created_at TIMESTAMP   NOT NULL,
     updated_at TIMESTAMP NULL
 );
