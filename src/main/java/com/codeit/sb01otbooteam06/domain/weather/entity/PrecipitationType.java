@@ -11,7 +11,7 @@ package com.codeit.sb01otbooteam06.domain.weather.entity;
  * 6 : 빗방울/눈날림 (DRIZZLE_SNOW)
  * 7 : 눈날림      (FLURRY)
  */
-public enum PrecipType {
+public enum PrecipitationType {
     NONE(0),
     RAIN(1),
     RAIN_SNOW(2),
@@ -23,7 +23,7 @@ public enum PrecipType {
 
     private final int code;
 
-    PrecipType(int code) {
+    PrecipitationType(int code) {
         this.code = code;
     }
 
@@ -32,7 +32,7 @@ public enum PrecipType {
     }
 
     /** KMA 코드 → Enum */
-    public static PrecipType fromCode(int code) {
+    public static PrecipitationType fromCode(int code) {
         return switch (code) {
             case 0 -> NONE;
             case 1 -> RAIN;

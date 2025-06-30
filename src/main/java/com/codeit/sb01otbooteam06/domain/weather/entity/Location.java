@@ -13,13 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(staticName = "from")   // 편의용
 public class Location {
 
-  @Column(nullable = false)
   private Double latitude;
-  @Column(nullable = false)
   private Double longitude;
-
-  @Column(name = "grid_x", nullable = false)
   private Integer x;
-  @Column(name = "grid_y", nullable = false)
   private Integer y;
 }

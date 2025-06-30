@@ -20,10 +20,5 @@ public class WeatherBatchConfig {
     private final PlatformTransactionManager txManager;
 
     private final WeatherRepository weatherRepository;
-    private final LocationService locationService;
-    private final KmaApiClient kmaApiClient;
-    private final KakaoLocalClient kakaoLocalClient;
-    private final CoordinateConverter coordinateConverter;
-    private final WeatherMapper weatherMapper;
 
 }

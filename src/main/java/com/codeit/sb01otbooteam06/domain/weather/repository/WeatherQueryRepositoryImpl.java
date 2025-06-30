@@ -3,6 +3,7 @@ package com.codeit.sb01otbooteam06.domain.weather.repository;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Location;
 import com.codeit.sb01otbooteam06.domain.weather.entity.QWeather;
 import com.codeit.sb01otbooteam06.domain.weather.entity.QWeatherLocationName;
+import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.Instant;
 import java.util.List;
