@@ -2,8 +2,14 @@ spring:
 #  sql:
 #    init:
 #      mode: always      # 항상 schema.sql, data.sql 실행
-#      schema-locations:  classpath:schema.sql
+#      schema-locations: classpath:schema.sql
 #      data-locations: classpath:data.sql
+#
+#  batch:
+#    jdbc:
+#      initialize-schema: always
+#    job:
+#      enabled: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/Otboo
@@ -22,7 +28,10 @@ spring:
         generate_statistics: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
-
+kma:
+  service-key: ${KMA_KEY}
+kakao:
+  rest-key: ${KAKAO_KEY}
 logging:
   level:
     org:

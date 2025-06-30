@@ -3,11 +3,6 @@ spring:
     name: otboo
   profiles:
     active: dev
-  batch:
-    jdbc:
-      initialize-schema: always
-    job:
-      enabled: false
 
 logging:
   level:
