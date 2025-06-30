@@ -14,7 +14,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "attributes_defs")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AttributesDef extends BaseUpdatableEntity {
+public class AttributeDef extends BaseUpdatableEntity {
 
   //의상속성
   @Column(name = "name", nullable = false)
@@ -24,7 +24,7 @@ public class AttributesDef extends BaseUpdatableEntity {
   @Column(name = "selectable_values", columnDefinition = "text[]", nullable = false)
   private String[] selectableValues;
 
-  public AttributesDef(String name, String[] selectableValues) {
+  public AttributeDef(String name, String[] selectableValues) {
     this.name = name;
     this.selectableValues = selectableValues;
   }
