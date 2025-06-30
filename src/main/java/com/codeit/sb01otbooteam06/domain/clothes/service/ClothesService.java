@@ -6,16 +6,18 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequset;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.ClothesNotFoundException;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -49,6 +51,7 @@ public class ClothesService {
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
+    //String imageUrl = s3Service.upload(clothesImage, directory);
 
     Clothes clothes = new Clothes(
         owner,
@@ -64,6 +67,41 @@ public class ClothesService {
     clothesAttributeService.create(clothes.getId(), clothesCreateRequset.attributes());
 
     return clothesMapper.toDto(clothes);
+  }
+
+
+  @Transactional(readOnly = true)
+  public PageResponse<ClothesDto> findAll(String cursor, String idAfter,
+      int limit, String typeEqual, UUID ownerId) {
+
+    //의상 목록 가져오기
+    List<Clothes> clothesList = clothesRepository.findAllByCursor(cursor, idAfter, limit + 1,
+        typeEqual, ownerId);
+
+    //실제 size계산 (초과 조회된 1개 제외)
+    int fetchedSize = clothesList.size();
+    boolean hasNext = fetchedSize > limit;
+
+    //실제 보여줄 limit 수만큼 clothes 남기기
+    List<Clothes> resultClothes = hasNext ? clothesList.subList(0, limit) : clothesList;
+    
+    //DTO 변환
+    List<ClothesDto> clothesDtos = resultClothes.stream()
+        .map(clothesMapper::toDto)
+        .toList();
+    int size = clothesDtos.size();
+
+    //TODO: 매번 호출 비효율 -> 캐싱?
+    //totalCount
+    int totalCount = clothesRepository.getTotalCounts(typeEqual, ownerId);
+
+    // next 조회
+    String nextCursor = hasNext ? resultClothes.get(size - 1).getCreatedAt().toString() : null;
+    String nextIdAfter = hasNext ? resultClothes.get(size - 1).getOwner().getId().toString() : null;
+
+    return new PageResponse<>(clothesDtos, nextCursor, nextIdAfter, hasNext, totalCount,
+        "createdAt", "DESCENDING");
+
   }
 
   /**
@@ -103,6 +141,7 @@ public class ClothesService {
   }
 
   //TODO: 의상 추천 알고리즘
+  //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
 
   /**
    * 의상을 삭제합니다.

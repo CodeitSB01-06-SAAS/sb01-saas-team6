@@ -11,7 +11,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class CursorResponse<T> {
+public class PageResponse<T> {
 
   private final List<T> data;
   private final String nextCursor;
