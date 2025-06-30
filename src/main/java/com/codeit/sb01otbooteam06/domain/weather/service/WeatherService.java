@@ -1,18 +1,30 @@
 package com.codeit.sb01otbooteam06.domain.weather.service;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+
 import com.codeit.sb01otbooteam06.domain.weather.dto.ForecastKey;
 import com.codeit.sb01otbooteam06.domain.weather.dto.KmaVillageResponse;
 import com.codeit.sb01otbooteam06.domain.weather.dto.KmaVillageItem;
+import com.codeit.sb01otbooteam06.domain.weather.dto.WeatherAPILocationDto;
+import com.codeit.sb01otbooteam06.domain.weather.dto.WeatherDto;
 import com.codeit.sb01otbooteam06.domain.weather.dto.WeatherMetrics;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Location;
+import com.codeit.sb01otbooteam06.domain.weather.entity.Temperature;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
+import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.mapper.WeatherMapper;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +34,37 @@ import org.springframework.transaction.annotation.Transactional;
 public class WeatherService {
 
     private final WeatherRepository weatherRepository;
-    private final KmaApiClient kmaApiClient;           // getVilageFcst 호출용
-    private final KakaoLocalClient kakaoLocalClient;   // 행정동 이름 조회
-    private final CoordinateConverter coordinateConverter; // lat/lon ↔ nx/ny
+    private final KmaApiClient kmaApiClient;
+    private final KakaoLocalClient kakaoLocalClient;
+    private final CoordinateConverter coordinateConverter;
+
+    /* -------------- 위치 조회 -------------- */
+    public WeatherAPILocationDto findLocation(double lat, double lon) {
+        return weatherRepository.latestLocation(lat, lon)
+            .map(loc -> toLocationRes(loc,
+                kakaoLocalClient.coordToRegion(lat, lon)))
+            .orElseThrow(() -> new WeatherNotFoundException().withLatLon(lat, lon));
+    }
+
+    /* -------------- 최신 예보 번들 -------------- */
+    public List<WeatherDto> findLatestBundle(double lat, double lon) {
+
+        List<Weather> bundle = weatherRepository.findForecastBundle(lat, lon);
+        if (bundle.isEmpty()) {
+            throw new WeatherNotFoundException().withLatLon(lat, lon);
+        }
+
+        fillMinMax(bundle);   // ← min/max null 보간
+
+        /* 전일 대비용 맵 (전일 같은 forecastAt) */
+        Map<Instant, Weather> yMap = bundle.stream()
+            .collect(Collectors.toMap(Weather::getForecastAt, w -> w));
+
+        return bundle.stream()
+            .map(w -> toWeatherRes(w,
+                yMap.get(w.getForecastAt().minus(1, DAYS))))
+            .toList();
+    }
 
     /**
      * 단기예보 “getVilageFcst”를 호출해 Weather 엔티티를 저장한다.
@@ -39,7 +79,9 @@ public class WeatherService {
 
         /* 2) KMA 단기예보 호출 */
         KmaVillageResponse dto = kmaApiClient.getVillageFcst(grid.gridX(), grid.gridY());
-        if (dto.items().isEmpty()) return;   // 데이터가 없으면 조용히 종료
+        if (dto.items().isEmpty()) {
+            return;   // 데이터가 없으면 조용히 종료
+        }
 
         /* 3) (baseDate+baseTime, fcstDate+fcstTime) 단위로 그룹핑 */
         Map<ForecastKey, List<KmaVillageItem>> grouped =
@@ -73,6 +115,87 @@ public class WeatherService {
             }
 
             weatherRepository.save(weather);
+        });
+    }
+
+    /* private  */
+    private static WeatherAPILocationDto toLocationRes(
+        Location loc, List<String> names) {
+        return new WeatherAPILocationDto(
+            loc.getLatitude(), loc.getLongitude(),
+            loc.getX(), loc.getY(), names);
+    }
+
+    private static WeatherDto toWeatherRes(Weather w, Weather yDay) {
+
+        double curT = ofNullable(w.getTemperature().getCurrent()).orElse(0.0);
+        Double yT = yDay == null ? null : yDay.getTemperature().getCurrent();
+
+        double curH = ofNullable(w.getHumidity()).orElse(0.0);
+        Double yH = yDay == null ? null : yDay.getHumidity();
+
+        WeatherDto.Temperature tDto = new WeatherDto.Temperature(
+            curT, yT == null ? null : curT - yT,
+            w.getTemperature().getMin(),
+            w.getTemperature().getMax());
+
+        WeatherDto.Humidity hDto = new WeatherDto.Humidity(
+            curH, yH == null ? null : curH - yH);
+
+        WeatherDto.Precipitation pDto = new WeatherDto.Precipitation(
+            w.getPrecipitationType(),
+            ofNullable(w.getPrecipitation().getAmount()).orElse(0.0),
+            ofNullable(w.getPrecipitation().getProbability()).orElse(0.0));
+
+        double spd = ofNullable(w.getWind().getSpeed()).orElse(0.0);
+        String word = spd < 4 ? "WEAK" : spd < 9 ? "MODERATE" : "STRONG";
+        WeatherDto.WindSpeed wsDto = new WeatherDto.WindSpeed(spd, word);
+
+        Location l = w.getLocation();
+        WeatherDto.Loc locDto = new WeatherDto.Loc(
+            l.getLatitude(), l.getLongitude(),
+            l.getX(), l.getY(), null);
+
+        return new WeatherDto(
+            w.getId(),
+            w.getForecastedAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+            w.getForecastAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+            locDto, w.getSkyStatus(),
+            pDto, hDto, tDto, wsDto);
+    }
+
+    /* ---------- min/max 채우기 ---------- */
+    private static void fillMinMax(List<Weather> bundle) {
+
+        Double min = bundle.stream()
+            .map(w -> w.getTemperature().getMin())
+            .filter(Objects::nonNull)
+            .min(Double::compare).orElse(null);
+
+        Double max = bundle.stream()
+            .map(w -> w.getTemperature().getMax())
+            .filter(Objects::nonNull)
+            .max(Double::compare).orElse(null);
+
+        if (min == null && max == null) {
+            return; // 둘 다 없으면 끝
+        }
+
+        bundle.forEach(w -> {
+            Temperature old = w.getTemperature();
+            Temperature filled = Temperature.from(
+                old.getCurrent(),      // current 유지
+                min,                   // 공통 min
+                max);                  // 공통 max
+            w.applyMetrics(
+                w.getSkyStatus(),
+                w.getPrecipitationType(),
+                filled,
+                w.getPrecipitation(),
+                w.getWind(),
+                w.getHumidity(),
+                w.getSnowAmount(),
+                w.getLightning());
         });
     }
 }

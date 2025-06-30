@@ -19,14 +19,14 @@ public class WeatherJobScheduler {
     private final JobLauncher jobLauncher;
 
     /** 3시간마다 10분 30초 지점에 실행 (KST) */
-    @Scheduled(cron = "0 45 15 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 1 5 * * *", zone = "Asia/Seoul")
     public void run() throws Exception {
         long ts = System.currentTimeMillis();
         log.info("⏰ Launching job ts={}", ts);
         jobLauncher.run(
             weatherChunkJob,
             new JobParametersBuilder()
-                .addLong("ts", System.currentTimeMillis())
+                .addLong("ts", ts)
                 .toJobParameters());
     }
 }
