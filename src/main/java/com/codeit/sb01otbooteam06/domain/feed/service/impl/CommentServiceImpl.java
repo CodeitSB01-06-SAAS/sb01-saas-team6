@@ -45,6 +45,7 @@ public class CommentServiceImpl implements CommentService {
     // 댓글을 레포지토리에 저장안한 이유? cascade = ALL 설정, 피드가 저장 되면 같이 저장.
     feed.addComment(comment);
     feedRepository.save(feed);
+    // todo : 이벤트 발행, 댓글 생성 시에 알림 가도록 나중에 추가 해야함.
 
     return FeedDto.fromEntity(feed);
   }
