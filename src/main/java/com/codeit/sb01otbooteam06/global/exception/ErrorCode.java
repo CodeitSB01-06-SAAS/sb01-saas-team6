@@ -12,7 +12,9 @@ public enum ErrorCode {
   ILLEGAL_ARGUMENT_ERROR("잘못된 인수가 전달되었습니다."),
 
   //Clothes
-  CLOTHES_NOT_FOUND("의상이 없습니다.");
+  CLOTHES_NOT_FOUND("의상이 없습니다."),
+  //weather
+  WEATHER_NOT_FOUND("현재 위치의 날씨 데이터가 없습니다.");
 
   private final String message;
 

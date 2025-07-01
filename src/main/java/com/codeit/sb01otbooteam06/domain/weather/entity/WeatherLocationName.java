@@ -1,6 +1,7 @@
 package com.codeit.sb01otbooteam06.domain.weather.entity;
 
 import com.codeit.sb01otbooteam06.domain.base.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -12,22 +13,23 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "weather_location_names")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "weather_location_names")
 public class WeatherLocationName extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "weather_id", nullable = false)
-  private Weather weather;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "weather_id", nullable = false)
+    private Weather weather;
 
-  private String locationName;
+    @Column(name = "location_name", nullable = false, length = 100)
+    private String locationName;
 
-  private WeatherLocationName(Weather weather, String locationName) {
-    this.weather = weather;
-    this.locationName = locationName;
-  }
+    private WeatherLocationName(Weather w, String name) {
+        this.weather = w;
+        this.locationName = name;
+    }
 
-  public static WeatherLocationName from(Weather weather, String locationName) {
-    return new WeatherLocationName(weather, locationName);
-  }
+    public static WeatherLocationName from(Weather w, String name) {
+        return new WeatherLocationName(w, name);
+    }
 }
