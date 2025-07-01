@@ -28,7 +28,7 @@ public class ClothesService {
   private final ClothesRepository clothesRepository;
   private final UserRepository userRepository;
 
-  private final AttributeService attributeService;
+  private final AttributeDefService attributeDefService;
   private final ClothesAttributeService clothesAttributeService;
 
   private final ClothesMapper clothesMapper;
@@ -84,7 +84,7 @@ public class ClothesService {
 
     //실제 보여줄 limit 수만큼 clothes 남기기
     List<Clothes> resultClothes = hasNext ? clothesList.subList(0, limit) : clothesList;
-    
+
     //DTO 변환
     List<ClothesDto> clothesDtos = resultClothes.stream()
         .map(clothesMapper::toDto)

@@ -12,7 +12,10 @@ public enum ErrorCode {
   ILLEGAL_ARGUMENT_ERROR("잘못된 인수가 전달되었습니다."),
 
   //Clothes
-  CLOTHES_NOT_FOUND("의상이 없습니다.");
+  CLOTHES_NOT_FOUND("의상이 없습니다."),
+
+  //AttributeDefs
+  ATTRIBUTEDEF_ALREADY_EXISTS("의상 속성이 이미 존재합니다.");
 
   private final String message;
 

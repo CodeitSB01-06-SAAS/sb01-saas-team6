@@ -58,7 +58,8 @@ public class GlobalExceptionHandler {
       //400 Bad Request
       case ILLEGAL_ARGUMENT_ERROR,
            INVALID_REQUEST,
-           CLOTHES_NOT_FOUND -> HttpStatus.BAD_REQUEST;
+           CLOTHES_NOT_FOUND,
+           ATTRIBUTEDEF_ALREADY_EXISTS -> HttpStatus.BAD_REQUEST;
 
       //500 Internal Server Error
       case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
