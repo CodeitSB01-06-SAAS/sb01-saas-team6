@@ -22,7 +22,7 @@ public class WeatherJobScheduler {
     @Scheduled(cron = "0 1 5 * * *", zone = "Asia/Seoul")
     public void run() throws Exception {
         long ts = System.currentTimeMillis();
-        log.info("⏰ Launching job ts={}", ts);
+        log.info(" Launching job ts={}", ts);
         jobLauncher.run(
             weatherChunkJob,
             new JobParametersBuilder()

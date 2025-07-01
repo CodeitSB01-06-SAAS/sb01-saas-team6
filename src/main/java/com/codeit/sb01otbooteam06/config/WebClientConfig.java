@@ -34,8 +34,8 @@ public class WebClientConfig {
     public WebClient webClient(WebClient.Builder builder) {
         return builder
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .filter(logRequest)   // ← 추가
-            .filter(logResponse)  // ← 추가
+            .filter(logRequest)
+            .filter(logResponse)
             .build();
     }
 }
