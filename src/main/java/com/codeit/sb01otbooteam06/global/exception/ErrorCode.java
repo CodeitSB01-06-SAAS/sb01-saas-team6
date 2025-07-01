@@ -15,7 +15,8 @@ public enum ErrorCode {
   CLOTHES_NOT_FOUND("의상이 없습니다."),
 
   //AttributeDefs
-  ATTRIBUTEDEF_ALREADY_EXISTS("의상 속성이 이미 존재합니다.");
+  ATTRIBUTEDEF_ALREADY_EXISTS("의상 속성이 이미 존재합니다."),
+  ATTRIBUTEDEF_NOT_FOUND("의상 속성이 존재하지 않습니다.");
 
   private final String message;
 
