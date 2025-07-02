@@ -10,8 +10,11 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.ClothesNotFoundException;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
+import com.codeit.sb01otbooteam06.domain.user.entity.Role;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,10 @@ public class ClothesService {
   //S3 이미지 저장 디렉토리 네임
   private final String directory = clothes.getClass().getSimpleName();
 
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
   /**
    * 의상을 등록합니다.
    *
@@ -46,8 +53,20 @@ public class ClothesService {
   @Transactional
   public ClothesDto create(ClothesCreateRequset clothesCreateRequset, MultipartFile clothesImage) {
 
-    //TODO: User 예외던지기
-    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
+//    //TODO: User 예외처리, 
+//    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
+
+    //TODO: 더미 유저 삭제
+    //dummy
+    User owner = User.builder()
+        .email("dummy@example.com")
+        .password("password123")  // 보통은 인코딩된 비밀번호 넣음
+        .name("더미 사용자")
+        .role(Role.USER)          // Role enum 값에 맞게 변경하세요
+        .locked(false)
+        .linkedOAuthProviders(List.of("google", "kakao")) // 임의의 OAuth 제공자 리스트
+        .build();
+    userRepository.save(owner);
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
@@ -66,7 +85,9 @@ public class ClothesService {
     //TODO: 이미지-속성 중간테이블 저장 로직
     clothesAttributeService.create(clothes.getId(), clothesCreateRequset.attributes());
 
-    return clothesMapper.toDto(clothes);
+    //TODO:
+    return clothesMapper.toDto(clothesRepository.findById(clothes.getId())
+        .orElseThrow(() -> new ClothesNotFoundException().withId(clothes.getId())));
   }
 
 
@@ -97,7 +118,7 @@ public class ClothesService {
 
     // next 조회
     String nextCursor = hasNext ? resultClothes.get(size - 1).getCreatedAt().toString() : null;
-    String nextIdAfter = hasNext ? resultClothes.get(size - 1).getOwner().getId().toString() : null;
+    String nextIdAfter = hasNext ? resultClothes.get(size - 1).getId().toString() : null;
 
     return new PageResponse<>(clothesDtos, nextCursor, nextIdAfter, hasNext, totalCount,
         "createdAt", "DESCENDING");
