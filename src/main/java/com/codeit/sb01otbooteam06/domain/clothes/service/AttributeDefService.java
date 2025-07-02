@@ -3,6 +3,7 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.AttributeDef;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefDto;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefAlreadyExistsException;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefNotFoundException;
@@ -22,6 +23,8 @@ public class AttributeDefService {
 
   /// 의상 속성 서비스
 
+  //TODO: null 검증
+
   private final AttributeDefRepository attributeDefRepository;
 
   private final AttributeDefMapper attributeDefMapper;
@@ -38,30 +41,15 @@ public class AttributeDefService {
 
     AttributeDef attributeDef = new AttributeDef(
         clothesAttributeDefCreateRequest.name(),
-        clothesAttributeDefCreateRequest.selectableValues().toArray(new String[0])
+        clothesAttributeDefCreateRequest.selectableValues()
     );
 
     return attributeDefMapper.toDto(attributeDefRepository.save(attributeDef));
 
   }
 
-  //TODO: 수정
 
-  //TODO: 조회
-
-  @Transactional
-  public ClothesAttributeDefDto delete(UUID attributeDefId) {
-
-    AttributeDef attributeDef = attributeDefRepository.findById(attributeDefId)
-        .orElseThrow(() -> new AttributeDefNotFoundException().withId(attributeDefId));
-
-    ClothesAttributeDefDto clothesAttributeDefDto = attributeDefMapper.toDto(attributeDef);
-
-    attributeDefRepository.deleteById(attributeDefId);
-
-    return clothesAttributeDefDto;
-  }
-
+  @Transactional(readOnly = true)
   public PageResponse<ClothesAttributeDefDto> findAll(String cursor, String idAfter, int limit,
       String sortBy,
       String sortDirection, String keywordLike) {
@@ -97,4 +85,37 @@ public class AttributeDefService {
     return new PageResponse<>(attributeDefDtos, nextCursor, nextIdAfter, hasNext, totalCount,
         sortBy, sortDirection);
   }
+
+
+  @Transactional
+  public ClothesAttributeDefDto update(UUID definitionId,
+      ClothesAttributeDefUpdateRequest updateRequest) {
+
+    //중복 의상 속성 네임 검증
+    if (attributeDefRepository.existsByName(updateRequest.name())) {
+      throw new AttributeDefAlreadyExistsException();
+    }
+
+    // attributeDef 검색
+    AttributeDef attributeDef = attributeDefRepository.findById(definitionId)
+        .orElseThrow(() -> new AttributeDefNotFoundException().withId(definitionId));
+
+    attributeDef.update(updateRequest.name(), updateRequest.selectableValues());
+
+    return attributeDefMapper.toDto(attributeDefRepository.save(attributeDef));
+  }
+
+  @Transactional
+  public ClothesAttributeDefDto delete(UUID attributeDefId) {
+
+    AttributeDef attributeDef = attributeDefRepository.findById(attributeDefId)
+        .orElseThrow(() -> new AttributeDefNotFoundException().withId(attributeDefId));
+
+    ClothesAttributeDefDto clothesAttributeDefDto = attributeDefMapper.toDto(attributeDef);
+
+    attributeDefRepository.deleteById(attributeDefId);
+
+    return clothesAttributeDefDto;
+  }
+
 }
