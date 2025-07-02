@@ -55,7 +55,7 @@ CREATE TABLE weather_location_names
 );
 
 
---유저
+-- 유저
 CREATE TABLE users
 (
     id                     UUID PRIMARY KEY,
@@ -64,11 +64,11 @@ CREATE TABLE users
     name                   VARCHAR NOT NULL,
     role                   VARCHAR NOT NULL CHECK (role IN ('USER', 'ADMIN')),
     locked                 BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at             TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     linked_oauth_providers TEXT[]
 );
 
-
+-- 프로필
 CREATE TABLE profiles
 (
     id                      UUID PRIMARY KEY,
@@ -81,8 +81,16 @@ CREATE TABLE profiles
     y                       INT              NOT NULL,
     location_names          TEXT[],
     temperature_sensitivity INT              NOT NULL CHECK (temperature_sensitivity BETWEEN 1 AND 5),
-    profile_image_url       VARCHAR
+    profile_image_url       VARCHAR,
+    created_at              TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP
 );
+
+-- 프로필-유저 1:1 연결
+ALTER TABLE profiles
+    ADD CONSTRAINT fk_profiles_user FOREIGN KEY (id) REFERENCES users (id);
+
+
 
 
 
