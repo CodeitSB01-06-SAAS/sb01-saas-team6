@@ -59,6 +59,12 @@ public class ClothesAttributeService {
 
   }
 
-  public void update(UUID clothesID, List<ClothesAttributeDto> attributes) {
+  @Transactional
+  public List<ClothesAttribute> update(Clothes clothes, List<ClothesAttributeDto> attributes) {
+
+    //의상에 대한 기존 중간테이블 삭제 후 생성
+    clothesAttributeRepository.deleteByClothes(clothes);
+    return this.create(clothes, attributes);
+    
   }
 }

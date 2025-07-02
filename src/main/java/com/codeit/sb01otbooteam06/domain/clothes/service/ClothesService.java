@@ -19,6 +19,7 @@ import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -88,13 +89,43 @@ public class ClothesService {
     //DB에 의상 엔티티 저장
     clothesRepository.save(clothes);
 
-    // 의상 반환 dto의 attributes dto생성
-    List<ClothesAttribute> attributes = clothesAttributeService.create(clothes,
+    List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
         clothesCreateRequset.attributes());
-    List<ClothesAttributeWithDefDto> attributeWithDefDtos =
-        attributes.stream()
-            .map(clothesAttributeWithDefDtoMapper::toDto)
-            .toList();
+
+    ClothesDto clothesDto = clothesMapper.toDto(clothes);
+
+    return new ClothesDto(
+        clothesDto.id(),
+        clothesDto.ownerId(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
+    );
+  }
+
+
+  /**
+   * ClothesDto의 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
+   *
+   * @param attributes
+   * @returnList<ClothesAttributeWithDefDto>
+   */
+  private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
+      List<ClothesAttribute> attributes) {
+    return attributes.stream()
+        .map(clothesAttributeWithDefDtoMapper::toDto)
+        .toList();
+  }
+
+  /**
+   * ClothesDto를 만듭니다
+   *
+   * @param clothes
+   * @param clothesAttributes
+   * @return ClothesDto
+   */
+  private ClothesDto makeClothesDto(Clothes clothes, List<ClothesAttribute> clothesAttributes) {
 
     ClothesDto clothesDto = clothesMapper.toDto(clothes);
     return new ClothesDto(
@@ -103,11 +134,22 @@ public class ClothesService {
         clothesDto.name(),
         clothesDto.imageUrl(),
         clothesDto.type(),
-        attributeWithDefDtos // attribute
+        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
     );
+
   }
 
 
+  /**
+   * 커서 기반 페이지네이션으로 의상 목록을 조회합니다.
+   *
+   * @param cursor
+   * @param idAfter
+   * @param limit
+   * @param typeEqual
+   * @param ownerId
+   * @return PageResponse<ClothesDto>
+   */
   @Transactional(readOnly = true)
   public PageResponse<ClothesDto> findAll(String cursor, String idAfter,
       int limit, String typeEqual, UUID ownerId) {
@@ -123,11 +165,30 @@ public class ClothesService {
     //실제 보여줄 limit 수만큼 clothes 남기기
     List<Clothes> resultClothes = hasNext ? clothesList.subList(0, limit) : clothesList;
 
-    //DTO 변환
-    List<ClothesDto> clothesDtos = resultClothes.stream()
-        .map(clothesMapper::toDto)
-        .toList();
-    int size = clothesDtos.size();
+    ///  dto 변환 로직
+    //결과를 담을 clothesDto리스트 
+    List<ClothesDto> clothesDtos = new ArrayList<>();
+
+    // 의상 결과 리스트에 대하여 dto 변환 수행
+    for (Clothes clothes : resultClothes) {
+      //의상에 대한 속성
+      List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothes(clothes);
+
+      ClothesDto clothesDto = clothesMapper.toDto(clothes);
+
+      clothesDtos.add(new ClothesDto(
+          clothesDto.id(),
+          clothesDto.ownerId(),
+          clothesDto.name(),
+          clothesDto.imageUrl(),
+          clothesDto.type(),
+          makeClothesAttributeWithDefDtos(clothesAttributes) // attributes
+      ));
+
+    }
+    ///
+
+    int size = resultClothes.size();
 
     //TODO: 매번 호출 비효율 -> 캐싱?
     //totalCount
@@ -171,10 +232,21 @@ public class ClothesService {
         imageUrl
     );
 
-    //todo: 의상에 대한 의상속성중간테이블 업데이트
-    clothesAttributeService.update(clothesID, clothesUpdateRequest.attributes());
+    // 의상에 대한 의상속성중간테이블 업데이트
+    List<ClothesAttribute> clothesAttributes =
+        clothesAttributeService.update(clothes, clothesUpdateRequest.attributes());
 
-    return clothesMapper.toDto(clothes);
+    ClothesDto clothesDto = clothesMapper.toDto(clothes);
+
+    return new ClothesDto(
+        clothesDto.id(),
+        clothesDto.ownerId(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        makeClothesAttributeWithDefDtos(clothesAttributes) // attributes
+    );
+
 
   }
 
