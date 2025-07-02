@@ -64,16 +64,20 @@ public class ClothesService {
 //    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
 
     //TODO: 더미 유저 삭제하기
-    //dummy
-    User owner = User.builder()
-        .email("dummy@example.com")
-        .password("password123")  //
-        .name("더미 사용자")
-        .role(Role.USER)          //
-        .locked(false)
-        .linkedOAuthProviders(List.of("google", "kakao")) // 임의의 OAuth 제공자 리스트
-        .build();
-    userRepository.save(owner);
+    User owner;
+    if (userRepository.existsByEmail("dummy@example.com")) {
+      owner = userRepository.findByEmail("dummy@example.com").orElse(null);
+    } else {
+      owner = User.builder()
+          .email("dummy@example.com")
+          .password("password123")  //
+          .name("더미 사용자")
+          .role(Role.USER)          //
+          .locked(false)
+          .linkedOAuthProviders(List.of("google", "kakao")) // 임의의 OAuth 제공자 리스트
+          .build();
+      userRepository.save(owner);
+    }
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
@@ -92,16 +96,7 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
         clothesCreateRequset.attributes());
 
-    ClothesDto clothesDto = clothesMapper.toDto(clothes);
-
-    return new ClothesDto(
-        clothesDto.id(),
-        clothesDto.ownerId(),
-        clothesDto.name(),
-        clothesDto.imageUrl(),
-        clothesDto.type(),
-        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
-    );
+    return makeClothesDto(clothes, clothesAttributes);
   }
 
 
@@ -173,18 +168,9 @@ public class ClothesService {
     for (Clothes clothes : resultClothes) {
       //의상에 대한 속성
       List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothes(clothes);
-
-      ClothesDto clothesDto = clothesMapper.toDto(clothes);
-
-      clothesDtos.add(new ClothesDto(
-          clothesDto.id(),
-          clothesDto.ownerId(),
-          clothesDto.name(),
-          clothesDto.imageUrl(),
-          clothesDto.type(),
-          makeClothesAttributeWithDefDtos(clothesAttributes) // attributes
-      ));
-
+      //결과리스트에 clothesdto추가
+      clothesDtos.add(makeClothesDto(clothes, clothesAttributes)
+      );
     }
     ///
 
@@ -236,22 +222,15 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes =
         clothesAttributeService.update(clothes, clothesUpdateRequest.attributes());
 
-    ClothesDto clothesDto = clothesMapper.toDto(clothes);
-
-    return new ClothesDto(
-        clothesDto.id(),
-        clothesDto.ownerId(),
-        clothesDto.name(),
-        clothesDto.imageUrl(),
-        clothesDto.type(),
-        makeClothesAttributeWithDefDtos(clothesAttributes) // attributes
-    );
+    return makeClothesDto(clothes, clothesAttributes);
 
 
   }
 
   //TODO: 의상 추천 알고리즘
   //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
+
+  //TODO: 구매 링크로 의상정보 불러오기
 
   /**
    * 의상을 삭제합니다.
@@ -260,7 +239,7 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
-    //todo: 의상 삭제시 중간테이블 삭제
+    //todo: 의상 삭제시 중간테이블 삭제 -> 스키마제약으로
 
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));

@@ -37,6 +37,8 @@ public class ClothesAttributeService {
   public List<ClothesAttribute> create(Clothes clothes, List<ClothesAttributeDto> attributes) {
     List<ClothesAttribute> savedAttributes = new ArrayList<>();
 
+    //todo: value가 속성리스트에 포함되어있는지 예외체크
+
     //attributes는 리스트
     for (ClothesAttributeDto attribute : attributes) {
       // attributeDef 찾기
@@ -65,6 +67,6 @@ public class ClothesAttributeService {
     //의상에 대한 기존 중간테이블 삭제 후 생성
     clothesAttributeRepository.deleteByClothes(clothes);
     return this.create(clothes, attributes);
-    
+
   }
 }

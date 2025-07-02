@@ -9,6 +9,7 @@ import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefAlreadyEx
 import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefNotFoundException;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.AttributeDefMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.AttributeDefRepository;
+import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AttributeDefService {
   //TODO: null 검증
 
   private final AttributeDefRepository attributeDefRepository;
+  private final ClothesAttributeRepository attributeDefClothesRepository;
 
   private final AttributeDefMapper attributeDefMapper;
 
@@ -113,7 +115,10 @@ public class AttributeDefService {
 
     ClothesAttributeDefDto clothesAttributeDefDto = attributeDefMapper.toDto(attributeDef);
 
+    //의상 속성 삭제
     attributeDefRepository.deleteById(attributeDefId);
+
+    //TODO: 삭제시 중간테이블 정보 삭제
 
     return clothesAttributeDefDto;
   }
