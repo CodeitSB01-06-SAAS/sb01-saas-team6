@@ -31,11 +31,11 @@ public class CommentServiceImpl implements CommentService {
 
   @Transactional
   @Override
-  public FeedDto createComment(CommentCreateRequest request) {
+  public CommentDto createComment(UUID feedId ,CommentCreateRequest request) {
     //todo : 나중에 인증 관련에서 개발 할때 리팩토링.
     User author = userRepository.findById(request.getAuthorId())
         .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
-    Feed feed = feedRepository.findById(request.getFeedId())
+    Feed feed = feedRepository.findById(feedId)
         .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
 
     Comment comment = Comment.of(request.getContent(), author.getName(), author, feed);
@@ -47,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
     feedRepository.save(feed);
     // todo : 이벤트 발행, 댓글 생성 시에 알림 가도록 나중에 추가 해야함.
 
-    return FeedDto.fromEntity(feed);
+    return CommentDto.fromEntity(comment);
   }
 
   @Override
