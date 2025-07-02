@@ -1,11 +1,8 @@
 package com.codeit.sb01otbooteam06.domain.clothes.controller;
 
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefDto;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDto;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.service.AttributeDefService;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +24,9 @@ public class AttributeDefController {
       @RequestParam(value = "sortDirection", defaultValue = "ASCENDING") String sortDirection,
       @RequestParam(value = "keywordLike", required = false) String keywordLike
   ) {
-    PageResponse<ClothesAttributeDefDto> result = attributeDefService.findAll(cursor, idAfter, limit,sortBy, sortDirection, keywordLike);
+    PageResponse<ClothesAttributeDefDto> result = attributeDefService.findAll(cursor, idAfter,
+        limit, sortBy, sortDirection, keywordLike);
     return ResponseEntity.ok(result);
+  }
 
 }
