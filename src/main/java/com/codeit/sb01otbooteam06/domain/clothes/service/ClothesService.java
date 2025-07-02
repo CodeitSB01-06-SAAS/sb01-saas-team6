@@ -85,7 +85,6 @@ public class ClothesService {
     //TODO: 이미지-속성 중간테이블 저장 로직
     clothesAttributeService.create(clothes.getId(), clothesCreateRequset.attributes());
 
-    //TODO:
     return clothesMapper.toDto(clothesRepository.findById(clothes.getId())
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothes.getId())));
   }
