@@ -3,12 +3,16 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 import static com.codeit.sb01otbooteam06.domain.clothes.entity.QClothes.clothes;
 
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequset;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.ClothesNotFoundException;
+import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesAttributeWithDefDtoMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
+import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.Role;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
@@ -35,9 +39,11 @@ public class ClothesService {
   private final ClothesAttributeService clothesAttributeService;
 
   private final ClothesMapper clothesMapper;
+  private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
 
   //S3 이미지 저장 디렉토리 네임
   private final String directory = clothes.getClass().getSimpleName();
+  private final ClothesAttributeRepository clothesAttributeRepository;
 
 
   @PersistenceContext
@@ -56,13 +62,13 @@ public class ClothesService {
 //    //TODO: User 예외처리, 
 //    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
 
-    //TODO: 더미 유저 삭제
+    //TODO: 더미 유저 삭제하기
     //dummy
     User owner = User.builder()
         .email("dummy@example.com")
-        .password("password123")  // 보통은 인코딩된 비밀번호 넣음
+        .password("password123")  //
         .name("더미 사용자")
-        .role(Role.USER)          // Role enum 값에 맞게 변경하세요
+        .role(Role.USER)          //
         .locked(false)
         .linkedOAuthProviders(List.of("google", "kakao")) // 임의의 OAuth 제공자 리스트
         .build();
@@ -82,11 +88,23 @@ public class ClothesService {
     //DB에 의상 엔티티 저장
     clothesRepository.save(clothes);
 
-    //TODO: 이미지-속성 중간테이블 저장 로직
-    clothesAttributeService.create(clothes.getId(), clothesCreateRequset.attributes());
+    // 의상 반환 dto의 attributes dto생성
+    List<ClothesAttribute> attributes = clothesAttributeService.create(clothes,
+        clothesCreateRequset.attributes());
+    List<ClothesAttributeWithDefDto> attributeWithDefDtos =
+        attributes.stream()
+            .map(clothesAttributeWithDefDtoMapper::toDto)
+            .toList();
 
-    return clothesMapper.toDto(clothesRepository.findById(clothes.getId())
-        .orElseThrow(() -> new ClothesNotFoundException().withId(clothes.getId())));
+    ClothesDto clothesDto = clothesMapper.toDto(clothes);
+    return new ClothesDto(
+        clothesDto.id(),
+        clothesDto.ownerId(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        attributeWithDefDtos // attribute
+    );
   }
 
 
@@ -153,7 +171,7 @@ public class ClothesService {
         imageUrl
     );
 
-    //의상에 대한 의상속성중간테이블 업데이트
+    //todo: 의상에 대한 의상속성중간테이블 업데이트
     clothesAttributeService.update(clothesID, clothesUpdateRequest.attributes());
 
     return clothesMapper.toDto(clothes);
@@ -170,6 +188,8 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
+    //todo: 의상 삭제시 중간테이블 삭제
+
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));
     clothesRepository.deleteById(clothesId);

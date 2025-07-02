@@ -5,11 +5,11 @@ import java.util.UUID;
 
 public record ClothesDto(
     UUID id,
-    UUID ownerID,
+    UUID ownerId,
     String name,
     String imageUrl,
     String type,
-    List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
+    List<ClothesAttributeWithDefDto> attributes
 ) {
 
 }
