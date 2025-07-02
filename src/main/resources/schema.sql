@@ -12,43 +12,46 @@ DROP TABLE IF EXISTS
     users,
     weather_location_names,
     weathers
-;
-DROP TYPE IF EXISTS notification_type;
+    CASCADE;
+DROP TYPE IF EXISTS notification_type CASCADE;
 
 CREATE TABLE weathers
 (
-    id                                 UUID PRIMARY KEY,
-    forecasted_at                      TIMESTAMP        NOT NULL,
-    forecast_at                        TIMESTAMP        NOT NULL,
-    latitude                           DOUBLE PRECISION NOT NULL,
-    longitude                          DOUBLE PRECISION NOT NULL,
-    x                                  INTEGER          NOT NULL,
-    y                                  INTEGER          NOT NULL,
-    sky_status                         VARCHAR(30)      NOT NULL,
-    precipitation_type                 VARCHAR(30)      NOT NULL,
-    precipitation_amount               DOUBLE PRECISION NOT NULL,
-    precipitation_probability          DOUBLE PRECISION NOT NULL,
-    humidity_current                   DOUBLE PRECISION NOT NULL,
-    humidity_compared_to_day_before    DOUBLE PRECISION NOT NULL,
-    temperature_current                DOUBLE PRECISION NOT NULL,
-    temperature_compared_to_day_before DOUBLE PRECISION NOT NULL,
-    temperature_min                    DOUBLE PRECISION NOT NULL,
-    temperature_max                    DOUBLE PRECISION NOT NULL,
-    wind_speed                         DOUBLE PRECISION NOT NULL,
-    wind_as_word                       VARCHAR(30)      NOT NULL,
-    created_at                         TIMESTAMP        NOT NULL,
-    updated_at                         TIMESTAMP        NOT NULL
+    id                        UUID PRIMARY KEY,
+    forecasted_at             TIMESTAMP        NOT NULL, -- 발표 시각(baseDate+baseTime)
+    forecast_at               TIMESTAMP        NOT NULL, -- 예보 시각(fcstDate+fcstTime)
+    lat                       DOUBLE PRECISION NOT NULL,
+    lon                       DOUBLE PRECISION NOT NULL,
+    grid_x                    SMALLINT         NOT NULL,
+    grid_y                    SMALLINT         NOT NULL,
+    sky_status                VARCHAR(15)      NOT NULL, -- CLEAR / MOSTLY_CLOUDY / CLOUDY
+    precipitation_type        VARCHAR(15)      NOT NULL, -- RAIN / SNOW …
+    temperature_current       DOUBLE PRECISION,
+    temperature_min           DOUBLE PRECISION,
+    temperature_max           DOUBLE PRECISION,
+    precipitation_amount      DOUBLE PRECISION,
+    precipitation_amount_text VARCHAR(20),
+    precipitation_probability DOUBLE PRECISION,
+    humidity                  DOUBLE PRECISION,
+    snow_amount               DOUBLE PRECISION,
+    lightning                 DOUBLE PRECISION,
+    wind_speed                DOUBLE PRECISION,
+    wind_level                SMALLINT,
+    wind_direction            DOUBLE PRECISION,
+    wind_u                    DOUBLE PRECISION,
+    wind_v                    DOUBLE PRECISION,
+    created_at                TIMESTAMP,
+    updated_at                TIMESTAMP,
+    UNIQUE (forecasted_at, forecast_at, grid_x, grid_y)
 );
 
+/* ---------------- 행정동 이름 목록 ---------------- */
 CREATE TABLE weather_location_names
 (
     id            UUID PRIMARY KEY,
-    weather_id    UUID         NOT NULL,
+    weather_id    UUID         NOT NULL REFERENCES weathers (id) ON DELETE CASCADE,
     location_name VARCHAR(100) NOT NULL,
-    created_at    TIMESTAMP    NOT NULL,
-
-    CONSTRAINT fk_locnames_weather FOREIGN KEY (weather_id) REFERENCES weathers (id) ON DELETE CASCADE
-
+    created_at    TIMESTAMP
 );
 
 
@@ -175,7 +178,7 @@ CREATE TABLE clothes
     owner_id   UUID        NOT NULL,
     name       VARCHAR(40) NOT NULL,
     type       VARCHAR(20) NOT NULL,
-    image_url   TEXT        NOT NULL,
+    image_url  TEXT        NOT NULL,
     created_at TIMESTAMP   NOT NULL,
     updated_at TIMESTAMP NULL
 );
