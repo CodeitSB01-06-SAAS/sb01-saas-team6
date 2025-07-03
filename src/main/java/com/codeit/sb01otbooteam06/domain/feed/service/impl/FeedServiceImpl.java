@@ -47,6 +47,7 @@ public class FeedServiceImpl implements FeedService {
     return FeedDto.fromEntity(feed);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public FeedDto getFeed(UUID feedId) {
     Feed feed = feedRepository.findById(feedId)
@@ -55,6 +56,7 @@ public class FeedServiceImpl implements FeedService {
     return FeedDto.fromEntity(feed);
   }
 
+  @Transactional
   @Override
   public FeedDto updateFeed(UUID feedId, FeedUpdateRequest request) {
     Feed feed = feedRepository.findById(feedId)
@@ -67,14 +69,15 @@ public class FeedServiceImpl implements FeedService {
 
   @Override
   public void deleteFeed(UUID feedId) {
-    feedRepository.findById(feedId)
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
-
+    if(!feedRepository.existsById(feedId)){
+      throw new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR);
+    }
     feedRepository.deleteById(feedId);
   }
 
 
   // todo : 나중에 이넘 타입인지 확인 할것, 날씨 부분
+  @Transactional(readOnly = true)
   @Override
   public FeedDtoCursorResponse getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
       Instant cursorCreatedAt, UUID cursorId, Long cursorLikeCount, int size, String sortBy) {

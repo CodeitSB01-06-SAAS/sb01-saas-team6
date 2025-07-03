@@ -45,15 +45,27 @@ public class FeedController {
   public ResponseEntity<FeedDtoCursorResponse> listFeedsByCursor(
       @RequestParam(name = "cursor", required = false) Instant cursor,
       @RequestParam(name = "idAfter", required = false) UUID idAfter,
-      @RequestParam(name = "limit") int limit, @RequestParam(name = "sortBy") String sortBy,
+      @RequestParam(name = "cursorLikeCount" , required = false) Long cursorLikeCount,
+      @RequestParam(name = "limit") int limit,
+      @RequestParam(name = "sortBy") String sortBy,
       @RequestParam(name = "sortDirection") String sortDirection,
       @RequestParam(name = "keywordLike", required = false) String keywordLike,
       @RequestParam(name = "skyStatusEqual", required = false) String skyStatusEqual,
       @RequestParam(name = "precipitationTypeEqual", required = false) String precipitationTypeEqual,
       @RequestParam(name = "authorIdEqual", required = false) UUID authorIdEqual) {
 
+    Instant cursorCreatedAt = null;
+    Long likeCursor = null;
+
+    if ("likeCount".equalsIgnoreCase(sortBy)) {
+      likeCursor = cursorLikeCount;
+    } else {
+      cursorCreatedAt = cursor;
+    }
+
+
     FeedDtoCursorResponse feedsByCursor = feedService.getFeedsByCursor(keywordLike, skyStatusEqual,
-        precipitationTypeEqual, cursor, idAfter, null, limit, sortBy);
+        precipitationTypeEqual, cursorCreatedAt, idAfter, likeCursor, limit, sortBy);
 
     return ResponseEntity.status(HttpStatus.OK).body(feedsByCursor);
   }
@@ -68,7 +80,7 @@ public class FeedController {
   }
 
   @DeleteMapping("/{feedId}")
-  public ResponseEntity<FeedDto> deleteFeed(@PathVariable UUID feedId) {
+  public ResponseEntity<Void> deleteFeed(@PathVariable UUID feedId) {
     feedService.deleteFeed(feedId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -80,7 +92,7 @@ public class FeedController {
   }
 
   @DeleteMapping("/{feedId}/like")
-  public ResponseEntity<FeedDto> unlikeFeed(@PathVariable UUID feedId) {
+  public ResponseEntity<Void> unlikeFeed(@PathVariable UUID feedId) {
     likeService.unlikedFeed(feedId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }

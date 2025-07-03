@@ -50,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
     return CommentDto.fromEntity(comment);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public CommentDtoCursorResponse getCommentsByCursor(UUID feedId, Instant cursor, UUID idAfter,
       int limit) {
