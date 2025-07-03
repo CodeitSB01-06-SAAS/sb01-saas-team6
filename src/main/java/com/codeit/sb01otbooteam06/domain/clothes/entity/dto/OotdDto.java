@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 //추천시 반환하는 의상 정보 dto
-public record RecommendationClothesDto(
+public record OotdDto(
     UUID clothesId,
     String name,
     String imageUrl,
