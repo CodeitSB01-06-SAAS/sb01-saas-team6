@@ -58,6 +58,7 @@ public class GlobalExceptionHandler {
       //400 Bad Request
       case ILLEGAL_ARGUMENT_ERROR,
            INVALID_REQUEST,
+           USER_NOT_FOUND,
            CLOTHES_NOT_FOUND,
            ATTRIBUTEDEF_ALREADY_EXISTS,
            ATTRIBUTEDEF_NOT_FOUND,

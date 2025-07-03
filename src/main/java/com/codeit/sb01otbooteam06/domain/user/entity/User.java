@@ -37,6 +37,7 @@ public class User extends BaseEntity {
   @Column(nullable = false)
   private Role role;
 
+  @Builder.Default
   @Column(nullable = false)
   private boolean locked = false;
 
