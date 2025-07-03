@@ -14,7 +14,7 @@ public record WeatherDto(
     LocalDateTime forecastAt,
     Loc location,
     SkyStatus skyStatus,
-    Precipitation precip,
+    Precipitation precipitation,
     Humidity humidity,
     Temperature temperature,
     WindSpeed windSpeed
