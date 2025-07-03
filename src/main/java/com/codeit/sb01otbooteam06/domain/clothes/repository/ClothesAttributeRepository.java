@@ -10,7 +10,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClothesAttributeRepository extends JpaRepository<ClothesAttribute, UUID> {
 
-  void deleteByClothes(Clothes clothes);
+  /**
+ * Deletes all ClothesAttribute entities associated with the specified Clothes entity.
+ *
+ * @param clothes the Clothes entity whose associated attributes will be deleted
+ */
+void deleteByClothes(Clothes clothes);
 
-  List<ClothesAttribute> findByClothes(Clothes clothes);
+  /**
+ * Retrieves all ClothesAttribute entities associated with the specified Clothes entity.
+ *
+ * @param clothes the Clothes entity whose attributes are to be retrieved
+ * @return a list of ClothesAttribute entities linked to the given Clothes entity
+ */
+List<ClothesAttribute> findByClothes(Clothes clothes);
 }

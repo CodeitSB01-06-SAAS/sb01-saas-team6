@@ -9,6 +9,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ClothesAttributeWithDefDtoMapper {
 
+  /**
+   * Converts a {@link ClothesAttribute} entity to a {@link ClothesAttributeWithDefDto}, mapping nested attribute definition fields to corresponding DTO fields.
+   *
+   * @param attribute the clothes attribute entity to convert
+   * @return a DTO containing the attribute's values and its definition details
+   */
   @Mapping(source = "attributeDef.id", target = "definitionId")
   @Mapping(source = "attributeDef.name", target = "definitionName")
   @Mapping(source = "attributeDef.selectableValues", target = "selectableValues")

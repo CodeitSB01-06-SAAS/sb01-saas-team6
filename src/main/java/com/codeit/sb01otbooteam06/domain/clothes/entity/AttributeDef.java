@@ -26,11 +26,23 @@ public class AttributeDef extends BaseUpdatableEntity {
   private List<String> selectableValues;
 
 
+  /**
+   * Constructs an AttributeDef with the specified name and selectable values.
+   *
+   * @param name the name of the attribute
+   * @param selectableValues the list of selectable values for the attribute
+   */
   public AttributeDef(String name, List<String> selectableValues) {
     this.name = name;
     this.selectableValues = selectableValues;
   }
 
+  /**
+   * Updates the attribute's name and selectable values with the provided values.
+   *
+   * @param name the new name for the attribute
+   * @param selectableValues the new list of selectable values for the attribute
+   */
   public void update(String name, List<String> selectableValues) {
     this.name = name;
     this.selectableValues = selectableValues;

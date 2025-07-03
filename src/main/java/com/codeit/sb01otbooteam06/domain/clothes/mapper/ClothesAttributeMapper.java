@@ -8,5 +8,11 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ClothesAttributeMapper {
 
-  ClothesAttributeDto toDto(ClothesAttribute clothesAttribute);
+  /**
+ * Converts a {@link ClothesAttribute} entity to its corresponding {@link ClothesAttributeDto}.
+ *
+ * @param clothesAttribute the entity to convert
+ * @return the mapped data transfer object representing the clothes attribute
+ */
+ClothesAttributeDto toDto(ClothesAttribute clothesAttribute);
 }

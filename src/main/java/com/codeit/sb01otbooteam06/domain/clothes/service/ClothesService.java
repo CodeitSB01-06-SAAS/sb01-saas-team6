@@ -50,12 +50,14 @@ public class ClothesService {
   @PersistenceContext
   private EntityManager entityManager;
 
-  /**
-   * 의상을 등록합니다.
+  /****
+   * Registers a new clothing item and returns its detailed DTO.
    *
-   * @param clothesCreateRequset
-   * @param clothesImage
-   * @return ClothesDto
+   * Creates a new `Clothes` entity with the provided name, type, and image, associating it with the admin user. Saves the entity, creates its attributes, and returns a `ClothesDto` including all associated attributes.
+   *
+   * @param clothesCreateRequset the request containing clothing details and attributes
+   * @param clothesImage the image file for the clothing item
+   * @return a `ClothesDto` representing the newly created clothing item with its attributes
    */
   @Transactional
   public ClothesDto create(ClothesCreateRequset clothesCreateRequset, MultipartFile clothesImage) {
@@ -89,10 +91,10 @@ public class ClothesService {
 
 
   /**
-   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
+   * Converts a list of ClothesAttribute entities to a list of ClothesAttributeWithDefDto DTOs.
    *
-   * @param attributes
-   * @returnList<ClothesAttributeWithDefDto>
+   * @param attributes the list of ClothesAttribute entities to convert
+   * @return a list of ClothesAttributeWithDefDto representing the provided attributes
    */
   private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
       List<ClothesAttribute> attributes) {
@@ -102,11 +104,11 @@ public class ClothesService {
   }
 
   /**
-   * ClothesDto를 만듭니다
+   * Constructs a ClothesDto from a Clothes entity and its associated attributes.
    *
-   * @param clothes
-   * @param clothesAttributes
-   * @return ClothesDto
+   * @param clothes the Clothes entity to convert
+   * @param clothesAttributes the list of ClothesAttribute entities associated with the clothes
+   * @return a ClothesDto containing the clothes data and its mapped attributes
    */
   private ClothesDto makeClothesDto(Clothes clothes, List<ClothesAttribute> clothesAttributes) {
 
@@ -124,14 +126,14 @@ public class ClothesService {
 
 
   /**
-   * 커서 기반 페이지네이션으로 의상 목록을 조회합니다.
+   * Retrieves a paginated list of clothes using cursor-based pagination, with optional filtering by type and owner.
    *
-   * @param cursor
-   * @param idAfter
-   * @param limit
-   * @param typeEqual
-   * @param ownerId
-   * @return PageResponse<ClothesDto>
+   * @param cursor      The pagination cursor representing the starting point for the next page.
+   * @param idAfter     The ID to disambiguate items with the same cursor value.
+   * @param limit       The maximum number of clothes to return.
+   * @param typeEqual   Optional filter to return only clothes of a specific type.
+   * @param ownerId     Optional filter to return only clothes owned by the specified user.
+   * @return A PageResponse containing a list of ClothesDto, pagination metadata, and total count.
    */
   @Transactional(readOnly = true)
   public PageResponse<ClothesDto> findAll(String cursor, String idAfter,
@@ -178,12 +180,15 @@ public class ClothesService {
   }
 
   /**
-   * 의상을 수정합니다.
+   * Updates an existing clothing item with new details and attributes.
    *
-   * @param clothesID
-   * @param clothesUpdateRequest
-   * @param clothesImage
-   * @return ClothesDto
+   * If the name or type fields in the update request are null, the existing values are retained. The image is updated only if a new image is provided; otherwise, the current image URL is kept. Associated clothing attributes are also updated.
+   *
+   * @param clothesID the unique identifier of the clothing item to update
+   * @param clothesUpdateRequest the request containing updated fields and attributes
+   * @param clothesImage the new image file for the clothing item, or null to retain the current image
+   * @return the updated clothing item as a ClothesDto, including its attributes
+   * @throws ClothesNotFoundException if the clothing item with the specified ID does not exist
    */
   @Transactional
   public ClothesDto update(UUID clothesID, ClothesUpdateRequest clothesUpdateRequest,
@@ -228,9 +233,11 @@ public class ClothesService {
   //TODO: (심화) 구매 링크로 의상정보 불러오기?
 
   /**
-   * 의상을 삭제합니다.
+   * Deletes a clothing item by its unique identifier.
    *
-   * @param clothesId
+   * Throws a {@code ClothesNotFoundException} if the specified clothing item does not exist.
+   *
+   * @param clothesId the unique identifier of the clothing item to delete
    */
   @Transactional
   public void delete(UUID clothesId) {

@@ -15,7 +15,12 @@ public class RecommendationService {
   private final WeatherRepository weatherRepository;
 
   //TODO: 의상 추천 알고리즘
-  //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
+  /**
+   * Generates a clothing recommendation based on the specified weather data.
+   *
+   * @param weatherId the unique identifier of the weather data to use for generating recommendations
+   * @return a {@code RecommendationDto} containing the recommended clothing, or {@code null} if not implemented
+   */
   public RecommendationDto create(UUID weatherId) {
 
     //todo: 유저 아이디 획득

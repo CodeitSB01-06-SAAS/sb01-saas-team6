@@ -32,6 +32,13 @@ public class AttributeDefService {
   private final AttributeDefMapper attributeDefMapper;
 
 
+  /**
+   * Creates a new clothing attribute definition if the name is unique.
+   *
+   * @param clothesAttributeDefCreateRequest the request containing the name and selectable values for the new attribute definition
+   * @return the DTO representation of the created attribute definition
+   * @throws AttributeDefAlreadyExistsException if an attribute definition with the given name already exists
+   */
   @Transactional
   public ClothesAttributeDefDto create(
       ClothesAttributeDefCreateRequest clothesAttributeDefCreateRequest) {
@@ -51,6 +58,17 @@ public class AttributeDefService {
   }
 
 
+  /**
+   * Retrieves a paginated list of clothing attribute definitions with optional sorting and keyword filtering.
+   *
+   * @param cursor        The pagination cursor indicating the starting point for the next page.
+   * @param idAfter       The ID after which to start fetching results, used for pagination.
+   * @param limit         The maximum number of records to return.
+   * @param sortBy        The field by which to sort the results.
+   * @param sortDirection The direction of sorting ("asc" or "desc").
+   * @param keywordLike   A keyword for filtering attribute definitions by name.
+   * @return A {@code PageResponse} containing the list of attribute definition DTOs, pagination cursors, flags, total count, and sorting information.
+   */
   @Transactional(readOnly = true)
   public PageResponse<ClothesAttributeDefDto> findAll(String cursor, String idAfter, int limit,
       String sortBy,
@@ -89,6 +107,15 @@ public class AttributeDefService {
   }
 
 
+  /**
+   * Updates an existing clothing attribute definition with new name and selectable values.
+   *
+   * Throws an exception if the new name already exists or if the attribute definition is not found.
+   *
+   * @param definitionId the unique identifier of the attribute definition to update
+   * @param updateRequest the update request containing the new name and selectable values
+   * @return the updated attribute definition as a DTO
+   */
   @Transactional
   public ClothesAttributeDefDto update(UUID definitionId,
       ClothesAttributeDefUpdateRequest updateRequest) {
@@ -107,6 +134,13 @@ public class AttributeDefService {
     return attributeDefMapper.toDto(attributeDefRepository.save(attributeDef));
   }
 
+  /**
+   * Deletes an attribute definition by its ID and returns its DTO representation.
+   *
+   * @param attributeDefId the unique identifier of the attribute definition to delete
+   * @return the DTO of the deleted attribute definition
+   * @throws AttributeDefNotFoundException if no attribute definition with the given ID exists
+   */
   @Transactional
   public ClothesAttributeDefDto delete(UUID attributeDefId) {
 

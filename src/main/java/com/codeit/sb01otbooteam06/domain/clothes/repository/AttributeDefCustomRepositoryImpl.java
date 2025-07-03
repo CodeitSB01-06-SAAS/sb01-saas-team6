@@ -19,6 +19,19 @@ public class AttributeDefCustomRepositoryImpl implements AttributeDefCustomRepos
   private final JPAQueryFactory queryFactory;
 
 
+  /**
+   * Retrieves a paginated list of AttributeDef entities using cursor-based pagination, with optional keyword filtering and sorting.
+   *
+   * Applies a case-insensitive partial match on the name and selectableValues fields if a keyword is provided. Results are sorted primarily by name (ascending or descending based on sortDirection) and secondarily by createdAt. If a cursor is specified, only records after (or before) the cursor value are returned, depending on the sort direction. The number of results is limited to the specified limit.
+   *
+   * @param cursor        The value of the name field to use as the pagination cursor; only records after or before this value are returned, depending on sortDirection.
+   * @param idAfter       Unused parameter.
+   * @param limit         The maximum number of records to return.
+   * @param sortBy        Unused parameter; sorting is always by name and createdAt.
+   * @param sortDirection The sort direction for the name field ("ASCENDING" for ascending, any other value for descending).
+   * @param keywordLike   Optional keyword for partial, case-insensitive matching on name and selectableValues.
+   * @return              A list of AttributeDef entities matching the filter and pagination criteria.
+   */
   @Override
   public List<AttributeDef> findAllByCursor(String cursor, String idAfter, int limit, String sortBy,
       String sortDirection, String keywordLike) {
@@ -86,6 +99,14 @@ public class AttributeDefCustomRepositoryImpl implements AttributeDefCustomRepos
 
   }
 
+  /**
+   * Returns the total number of AttributeDef entities matching an optional keyword filter.
+   *
+   * The keyword filter performs a case-insensitive partial match on the name field and the string representation of the selectableValues array.
+   *
+   * @param keywordLike Optional keyword for partial matching; if null or empty, all entities are counted.
+   * @return The count of AttributeDef entities matching the filter.
+   */
   @Override
   public int getTotalCounts(String sortBy, String keywordLike) {
     QAttributeDef qAttributeDef = QAttributeDef.attributeDef;

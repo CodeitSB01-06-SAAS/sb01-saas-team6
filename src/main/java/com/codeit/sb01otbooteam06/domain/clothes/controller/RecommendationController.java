@@ -17,6 +17,12 @@ public class RecommendationController {
 
   private final RecommendationService recommendationService;
 
+  /**
+   * Retrieves clothing recommendations based on the specified weather ID.
+   *
+   * @param weatherId the unique identifier of the weather condition for which recommendations are requested
+   * @return a ResponseEntity containing the recommended clothing information
+   */
   @GetMapping
   public ResponseEntity<RecommendationDto> getRecommendations(
       @PathVariable("weatherId") UUID weatherId

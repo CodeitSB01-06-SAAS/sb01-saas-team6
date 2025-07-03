@@ -25,6 +25,12 @@ public class AttributeDefController {
 
   private final AttributeDefService attributeDefService;
 
+  /**
+   * Creates a new clothes attribute definition.
+   *
+   * @param request the details of the clothes attribute definition to create
+   * @return a response containing the created clothes attribute definition
+   */
   @PostMapping
   public ResponseEntity<ClothesAttributeDefDto> create(
       @RequestBody ClothesAttributeDefCreateRequest request) {
@@ -34,6 +40,17 @@ public class AttributeDefController {
 
   }
 
+  /**
+   * Retrieves a paginated list of clothes attribute definitions with optional filtering and sorting.
+   *
+   * @param cursor        an optional pagination cursor for fetching the next page of results
+   * @param idAfter       an optional ID to fetch results after a specific attribute definition
+   * @param limit         the maximum number of results to return (default is 50)
+   * @param sortBy        the field by which to sort the results
+   * @param sortDirection the direction of sorting, either "ASCENDING" or "DESCENDING" (default is "ASCENDING")
+   * @param keywordLike   an optional keyword for filtering attribute definitions by name or description
+   * @return a ResponseEntity containing a paginated response of clothes attribute definitions
+   */
   @GetMapping
   public ResponseEntity<PageResponse<ClothesAttributeDefDto>> findAll(
       @RequestParam(value = "cursor", required = false) String cursor,
@@ -48,6 +65,13 @@ public class AttributeDefController {
     return ResponseEntity.ok(result);
   }
 
+  /**
+   * Updates an existing clothes attribute definition with the specified ID.
+   *
+   * @param definitionId the UUID of the attribute definition to update
+   * @param updateRequest the update data for the attribute definition
+   * @return a ResponseEntity containing the updated ClothesAttributeDefDto
+   */
   @PatchMapping("/{definitionId}")
   public ResponseEntity<ClothesAttributeDefDto> update(
       @PathVariable UUID definitionId,
@@ -60,6 +84,12 @@ public class AttributeDefController {
     return ResponseEntity.ok(clothesAttributeDefDto);
   }
 
+  /**
+   * Deletes a clothes attribute definition identified by the given UUID.
+   *
+   * @param definitionId the UUID of the attribute definition to delete
+   * @return a response entity with HTTP 204 No Content if deletion is successful
+   */
   @DeleteMapping("/{definitionId}")
   public ResponseEntity<Void> delete(
       @PathVariable(value = "definitionId") UUID definitionId) {

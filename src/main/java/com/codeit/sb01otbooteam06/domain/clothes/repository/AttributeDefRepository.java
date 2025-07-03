@@ -9,5 +9,11 @@ import org.springframework.stereotype.Repository;
 public interface AttributeDefRepository extends JpaRepository<AttributeDef, UUID>,
     AttributeDefCustomRepository {
 
-  boolean existsByName(String name);
+  /**
+ * Checks if an AttributeDef entity with the specified name exists in the database.
+ *
+ * @param name the name of the attribute to check for existence
+ * @return true if an AttributeDef with the given name exists, false otherwise
+ */
+boolean existsByName(String name);
 }

@@ -45,11 +45,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(status).body(errorResponse);
   }
 
-  /**
-   * otboo 예외에 대한 상태코드를 처리합니다.
+  /****
+   * Determines the appropriate HTTP status code for a given OtbooException based on its error code.
    *
-   * @param exception
-   * @return 해당 exception에 대한 상태코드
+   * @param exception the OtbooException whose error code will be mapped to an HTTP status
+   * @return the corresponding HttpStatus for the exception's error code
    */
   private HttpStatus determineHttpStatus(OtbooException exception) {
     ErrorCode errorCode = exception.getErrorCode();

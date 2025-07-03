@@ -19,14 +19,16 @@ public class ClothesCustomRepositoryImpl implements ClothesCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   /**
-   * 검색 조건에 따른 의상 목록을 반환합니다.
+   * Retrieves a list of Clothes entities filtered by type and owner, supporting cursor-based pagination.
    *
-   * @param cursor
-   * @param idAfter
-   * @param limit
-   * @param typeEqual
-   * @param ownerId
-   * @return 의상 목록
+   * Results are ordered by creation time in descending order. If both cursor and idAfter are provided, only entities created before the cursor timestamp are returned.
+   *
+   * @param cursor     the timestamp string used as a pagination cursor; if provided with idAfter, fetches records created before this time
+   * @param idAfter    an additional cursor parameter used in conjunction with cursor for pagination
+   * @param limit      the maximum number of Clothes entities to return
+   * @param typeEqual  the type of Clothes to filter by
+   * @param ownerId    the UUID of the Clothes owner to filter by
+   * @return a list of Clothes entities matching the specified criteria
    */
   @Override
   public List<Clothes> findAllByCursor(String cursor, String idAfter, int limit, String typeEqual,
@@ -60,12 +62,12 @@ public class ClothesCustomRepositoryImpl implements ClothesCustomRepository {
   }
 
 
-  /**
-   * 사용자의 의상 타입에 따른 의상 개수를 반환한다.
+  /****
+   * Returns the total number of Clothes entities for a given type and owner.
    *
-   * @param typeEqual
-   * @param ownerId
-   * @return 사용자의 의상 타입에 따른 의상 개수
+   * @param typeEqual the type of clothes to filter by
+   * @param ownerId the UUID of the owner to filter by
+   * @return the count of Clothes entities matching the specified type and owner
    */
   @Override
   public int getTotalCounts(String typeEqual, UUID ownerId) {

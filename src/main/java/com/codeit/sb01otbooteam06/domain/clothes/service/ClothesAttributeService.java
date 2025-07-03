@@ -27,11 +27,13 @@ public class ClothesAttributeService {
   private final AttributeDefRepository attributeDefRepository;
 
   /**
-   * 의상-속성 중간 테이블에 의상에 대한 속성을 저장합니다.
+   * Saves a list of attributes for the specified Clothes entity by creating and persisting ClothesAttribute entities.
    *
-   * @param clothes
-   * @param attributes
-   * @return 의상에 대한 ClothesAttribute 객체 리스트
+   * For each provided attribute DTO, retrieves the corresponding AttributeDef by UUID, creates a ClothesAttribute linking the Clothes and AttributeDef with the given value, and saves it. Throws AttributeDefNotFoundException if any attribute definition is not found.
+   *
+   * @param clothes    the Clothes entity to associate attributes with
+   * @param attributes the list of ClothesAttributeDto objects representing the attributes to save
+   * @return a list of saved ClothesAttribute entities associated with the Clothes
    */
   @Transactional
   public List<ClothesAttribute> create(Clothes clothes, List<ClothesAttributeDto> attributes) {
@@ -61,6 +63,13 @@ public class ClothesAttributeService {
 
   }
 
+  /**
+   * Updates the attributes associated with a given Clothes entity by replacing all existing attributes with the provided list.
+   *
+   * @param clothes the Clothes entity whose attributes are to be updated
+   * @param attributes the new list of attribute DTOs to associate with the Clothes entity
+   * @return a list of newly saved ClothesAttribute entities reflecting the updated attributes
+   */
   @Transactional
   public List<ClothesAttribute> update(Clothes clothes, List<ClothesAttributeDto> attributes) {
 
