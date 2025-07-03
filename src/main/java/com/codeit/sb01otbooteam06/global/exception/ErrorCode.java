@@ -13,6 +13,12 @@ public enum ErrorCode {
 
   //Clothes
   CLOTHES_NOT_FOUND("의상이 없습니다."),
+
+  //AttributeDefs
+  ATTRIBUTEDEF_ALREADY_EXISTS("의상 속성이 이미 존재합니다."),
+  ATTRIBUTEDEF_NOT_FOUND("의상 속성이 존재하지 않습니다."),
+
+
   //weather
   WEATHER_NOT_FOUND("현재 위치의 날씨 데이터가 없습니다."),
   //USER
