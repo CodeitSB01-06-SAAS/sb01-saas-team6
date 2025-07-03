@@ -51,8 +51,6 @@ dependencies {
     implementation 'org.springframework.retry:spring-retry'               // @Retryable
     implementation 'org.springframework:spring-aspects'
 
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
     // mapstruct mapper의존성
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
