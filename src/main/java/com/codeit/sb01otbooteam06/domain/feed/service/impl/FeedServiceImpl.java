@@ -67,6 +67,7 @@ public class FeedServiceImpl implements FeedService {
     return FeedDto.fromEntity(updatedFeed);
   }
 
+  @Transactional
   @Override
   public void deleteFeed(UUID feedId) {
     if(!feedRepository.existsById(feedId)){
