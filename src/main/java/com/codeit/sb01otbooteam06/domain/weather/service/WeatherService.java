@@ -38,12 +38,27 @@ public class WeatherService {
     private final KakaoLocalClient kakaoLocalClient;
     private final CoordinateConverter coordinateConverter;
 
-    /* -------------- 위치 조회 -------------- */
+    /* 위치 조회 */
     public WeatherAPILocationDto findLocation(double lat, double lon) {
+
+        /* 1) DB에서 해당 위치의 이름명이 있는지 확인 */
         return weatherRepository.latestLocation(lat, lon)
-            .map(loc -> toLocationRes(loc,
-                kakaoLocalClient.coordToRegion(lat, lon)))
-            .orElseThrow(() -> new WeatherNotFoundException().withLatLon(lat, lon));
+            .map(loc -> toLocationRes(loc, kakaoLocalClient.coordToRegion(lat, lon)))
+
+            /* 2) DB에 만약 없을시 → (lat,lon) 직접 변환 & Kakao 호출 */
+            .orElseGet(() -> {
+
+                // 위‧경도 → 격자 변환
+                CoordinateConverter.Grid grid =
+                    coordinateConverter.latLonToGrid(lat, lon);
+
+                // 행정동명 실시간 조회
+                List<String> names =
+                    kakaoLocalClient.coordToRegion(lat, lon);
+
+                // 응답 DTO
+                return new WeatherAPILocationDto(lat, lon, grid.gridX(), grid.gridY(), names);
+            });
     }
 
     /* -------------- 최신 예보 번들 -------------- */
@@ -171,6 +186,7 @@ public class WeatherService {
             ofNullable(w.getPrecipitation().getAmount()).orElse(0.0),
             ofNullable(w.getPrecipitation().getProbability()).orElse(0.0));
     }
+
     /* ---------- min/max 채우기 ---------- */
     private static void fillMinMax(List<Weather> bundle) {
 
