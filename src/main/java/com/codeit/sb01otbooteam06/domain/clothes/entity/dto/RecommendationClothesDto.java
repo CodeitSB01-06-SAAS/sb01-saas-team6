@@ -3,13 +3,13 @@ package com.codeit.sb01otbooteam06.domain.clothes.entity.dto;
 import java.util.List;
 import java.util.UUID;
 
-public record ClothesDto(
-    UUID id,
-    UUID ownerId,
+//추천시 반환하는 의상 정보 dto
+public record RecommendationClothesDto(
+    UUID clothesId,
     String name,
     String imageUrl,
     String type,
-    List<ClothesAttributeWithDefDto> attributes
+    List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
 ) {
 
 }

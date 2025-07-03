@@ -1,21 +1,27 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
-import static com.codeit.sb01otbooteam06.domain.clothes.entity.QClothes.clothes;
-
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequset;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.ClothesNotFoundException;
+import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesAttributeWithDefDtoMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
+import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -26,44 +32,147 @@ public class ClothesService {
   private final ClothesRepository clothesRepository;
   private final UserRepository userRepository;
 
-  private final AttributeService attributeService;
+  private final AttributeDefService attributeDefService;
   private final ClothesAttributeService clothesAttributeService;
 
   private final ClothesMapper clothesMapper;
+  private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
 
   //S3 이미지 저장 디렉토리 네임
-  private final String directory = clothes.getClass().getSimpleName();
+  private final String directory = "Clothes";
+  private final ClothesAttributeRepository clothesAttributeRepository;
+
 
   /**
    * 의상을 등록합니다.
    *
-   * @param clothesCreateRequset
+   * @param clothesCreateRequest
    * @param clothesImage
    * @return ClothesDto
    */
   @Transactional
-  public ClothesDto create(ClothesCreateRequset clothesCreateRequset, MultipartFile clothesImage) {
+  public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
 
-    //TODO: User 예외던지기
-    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
+//    //TODO: User 찾기, 예외처리,
+//    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
+
+    /// TODO: 임시: 현재 의상을 ownerId로 찾지않고 admin 유저에 등록 중
+    User owner = userRepository.findByEmail("admin@example.com")
+        .orElseThrow(() -> new NoSuchElementException());
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
+    //String imageUrl = s3Service.upload(clothesImage, directory);
 
     Clothes clothes = new Clothes(
         owner,
-        clothesCreateRequset.name(),
-        clothesCreateRequset.type(),
+        clothesCreateRequest.name(),
+        clothesCreateRequest.type(),
         imageUrl
     );
 
     //DB에 의상 엔티티 저장
     clothesRepository.save(clothes);
 
-    //TODO: 이미지-속성 중간테이블 저장 로직
-    clothesAttributeService.create(clothes.getId(), clothesCreateRequset.attributes());
+    List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
+        clothesCreateRequest.attributes());
 
-    return clothesMapper.toDto(clothes);
+    return makeClothesDto(clothes, clothesAttributes);
+  }
+
+
+  /**
+   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
+   *
+   * @param attributes
+   * @returnList<ClothesAttributeWithDefDto>
+   */
+  private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
+      List<ClothesAttribute> attributes) {
+    if (attributes == null) {
+      return List.of();
+    }
+    return attributes.stream()
+        .map(clothesAttributeWithDefDtoMapper::toDto)
+        .toList();
+  }
+
+  /**
+   * ClothesDto를 만듭니다
+   *
+   * @param clothes
+   * @param clothesAttributes
+   * @return ClothesDto
+   */
+  private ClothesDto makeClothesDto(Clothes clothes, List<ClothesAttribute> clothesAttributes) {
+
+    ClothesDto clothesDto = clothesMapper.toDto(clothes);
+    return new ClothesDto(
+        clothesDto.id(),
+        clothesDto.ownerId(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
+    );
+
+  }
+
+
+  /**
+   * 커서 기반 페이지네이션으로 의상 목록을 조회합니다.
+   *
+   * @param cursor
+   * @param idAfter
+   * @param limit
+   * @param typeEqual
+   * @param ownerId
+   * @return PageResponse<ClothesDto>
+   */
+  @Transactional(readOnly = true)
+  public PageResponse<ClothesDto> findAll(String cursor, String idAfter,
+      int limit, String typeEqual, UUID ownerId) {
+
+    //의상 목록 가져오기
+    List<Clothes> clothesList = clothesRepository.findAllByCursor(cursor, idAfter, limit + 1,
+        typeEqual, ownerId);
+
+    //실제 size계산 (초과 조회된 1개 제외)
+    int fetchedSize = clothesList.size();
+    boolean hasNext = fetchedSize > limit;
+
+    //실제 보여줄 limit 수만큼 clothes 남기기
+    List<Clothes> resultClothes = hasNext ? clothesList.subList(0, limit) : clothesList;
+
+    ///  dto 변환 로직
+    //결과를 담을 clothesDto리스트 
+    List<ClothesDto> clothesDtos = new ArrayList<>();
+
+    //todo: n+1문제
+
+    // 의상 결과 리스트에 대하여 dto 변환 수행
+    for (Clothes clothes : resultClothes) {
+      //의상에 대한 속성
+      List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothes(clothes);
+      //결과리스트에 clothesdto추가
+      clothesDtos.add(makeClothesDto(clothes, clothesAttributes)
+      );
+    }
+    ///
+
+    int size = resultClothes.size();
+
+    //TODO: 매번 호출 비효율 -> 캐싱?
+    //totalCount
+    int totalCount = clothesRepository.getTotalCounts(typeEqual, ownerId);
+
+    // next 조회
+    String nextCursor = hasNext ? resultClothes.get(size - 1).getCreatedAt().toString() : null;
+    String nextIdAfter = hasNext ? resultClothes.get(size - 1).getId().toString() : null;
+
+    return new PageResponse<>(clothesDtos, nextCursor, nextIdAfter, hasNext, totalCount,
+        "createdAt", "DESCENDING");
+
   }
 
   /**
@@ -82,6 +191,17 @@ public class ClothesService {
     Clothes clothes = clothesRepository.findById(clothesID)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesID));
 
+    // name, type의 수정이 없는 경우 예외처리
+    // todo: 엔티티단으로 책임 넘기기?
+    String newName = clothesUpdateRequest.name();
+    String newType = clothesUpdateRequest.type();
+    if (clothesUpdateRequest.name() == null) {
+      newName = clothes.getName();
+    }
+    if (clothesUpdateRequest.type() == null) {
+      newType = clothes.getType();
+    }
+
     // todo: 이미지가 새로 들어온 경우에 S3에 업로드
     String imageUrl = clothes.getImageUrl();
 //    if (clothesImage != null) {
@@ -90,19 +210,21 @@ public class ClothesService {
 
     //의상 정보 업데이트
     clothes.update(
-        clothesUpdateRequest.name(),
-        clothesUpdateRequest.type(),
+        newName,
+        newType,
         imageUrl
     );
 
-    //의상에 대한 의상속성중간테이블 업데이트
-    clothesAttributeService.update(clothesID, clothesUpdateRequest.attributes());
+    // 의상에 대한 의상속성중간테이블 업데이트
+    List<ClothesAttribute> clothesAttributes =
+        clothesAttributeService.update(clothes, clothesUpdateRequest.attributes());
 
-    return clothesMapper.toDto(clothes);
+    return makeClothesDto(clothes, clothesAttributes);
+
 
   }
 
-  //TODO: 의상 추천 알고리즘
+  //TODO: (심화) 구매 링크로 의상정보 불러오기?
 
   /**
    * 의상을 삭제합니다.
@@ -111,6 +233,8 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
+    //todo: 의상 삭제시 중간테이블 삭제 ->
+
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));
     clothesRepository.deleteById(clothesId);
