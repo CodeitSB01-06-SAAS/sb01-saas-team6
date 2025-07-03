@@ -7,6 +7,7 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.service.AttributeDefService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,8 @@ public class AttributeDefController {
       @RequestBody ClothesAttributeDefCreateRequest request) {
 
     ClothesAttributeDefDto clothesAttributeDefDto = attributeDefService.create(request);
-    return ResponseEntity.ok(clothesAttributeDefDto);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(clothesAttributeDefDto);
 
   }
 
