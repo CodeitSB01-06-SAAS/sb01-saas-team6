@@ -19,6 +19,7 @@ public class AttributeDefCustomRepositoryImpl implements AttributeDefCustomRepos
   private final JPAQueryFactory queryFactory;
 
 
+  //todo" idAfter를 레포구현에서, 전반적 사용처 고민해보기 
   @Override
   public List<AttributeDef> findAllByCursor(String cursor, String idAfter, int limit, String sortBy,
       String sortDirection, String keywordLike) {
@@ -52,13 +53,13 @@ public class AttributeDefCustomRepositoryImpl implements AttributeDefCustomRepos
     }
 
     // 정렬 조건
-    OrderSpecifier<?> OrderSpecifier; //주정렬조건
+    OrderSpecifier<?> orderSpecifier; //주정렬조건
     OrderSpecifier<?> secondaryOrderSpecifier; //
 
     if (sortDirection.equals("ASCENDING")) {
-      OrderSpecifier = qAttributeDef.name.asc();
+      orderSpecifier = qAttributeDef.name.asc();
     } else {
-      OrderSpecifier = qAttributeDef.name.desc();
+      orderSpecifier = qAttributeDef.name.desc();
     }
 
     //커서 존재시 페이지네이션 적용
@@ -77,7 +78,7 @@ public class AttributeDefCustomRepositoryImpl implements AttributeDefCustomRepos
 
     List<AttributeDef> attributeDefs = queryFactory.selectFrom(qAttributeDef)
         .where(builder)
-        .orderBy(OrderSpecifier, secondaryOrderSpecifier)
+        .orderBy(orderSpecifier, secondaryOrderSpecifier)
         .limit(limit)
         .fetch();
 

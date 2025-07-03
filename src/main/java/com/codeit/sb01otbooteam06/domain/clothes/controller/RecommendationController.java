@@ -6,8 +6,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,7 +19,7 @@ public class RecommendationController {
 
   @GetMapping
   public ResponseEntity<RecommendationDto> getRecommendations(
-      @PathVariable("weatherId") UUID weatherId
+      @RequestParam("weatherId") UUID weatherId
   ) {
     RecommendationDto recommendationDto = recommendationService.create(weatherId);
     return ResponseEntity.ok(recommendationDto);

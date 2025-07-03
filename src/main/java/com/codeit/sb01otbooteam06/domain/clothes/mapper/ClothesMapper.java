@@ -11,9 +11,9 @@ public interface ClothesMapper {
 
   @Mapping(source = "owner.id", target = "ownerId")
   @Mapping(target = "attributes", ignore = true)
-    // true는 해당 필드 무시함. 추후 별도 주입
+    // ignore = true는 해당 필드 매핑을 무시함. 추후 서비스에서 별도 주입
   ClothesDto toDto(Clothes clothes);
-  
+
 
   Clothes toEntity(ClothesDto clothesDto);
 

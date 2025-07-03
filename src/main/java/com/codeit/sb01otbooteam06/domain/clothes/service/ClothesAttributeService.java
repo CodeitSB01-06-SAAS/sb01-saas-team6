@@ -39,25 +39,21 @@ public class ClothesAttributeService {
 
     //todo: value가 속성리스트에 포함되어있는지 예외체크
 
-    //attributes는 리스트
-    for (ClothesAttributeDto attribute : attributes) {
-      // attributeDef 찾기
-      AttributeDef targetAttributeDef = attributeDefRepository.findById(
-              UUID.fromString(attribute.definitionId()))
-          .orElseThrow(() -> new AttributeDefNotFoundException());
+    List<ClothesAttribute> clothesAttributes = attributes.stream()
+        .map(attribute -> {
+          AttributeDef targetAttributeDef = attributeDefRepository.findById(
+              UUID.fromString(attribute.definitionId())
+          ).orElseThrow(AttributeDefNotFoundException::new);
 
-      ClothesAttribute clothesAttribute = new ClothesAttribute(
-          clothes,
-          targetAttributeDef,
-          attribute.value()
-      );
+          return new ClothesAttribute(
+              clothes,
+              targetAttributeDef,
+              attribute.value()
+          );
+        })
+        .toList();
 
-      //save
-      savedAttributes.add(clothesAttributeRepository.save(clothesAttribute));
-    }
-
-    return savedAttributes;
-
+    return clothesAttributeRepository.saveAll(clothesAttributes);
 
   }
 

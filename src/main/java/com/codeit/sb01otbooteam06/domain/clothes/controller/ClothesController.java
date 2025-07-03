@@ -1,12 +1,13 @@
 package com.codeit.sb01otbooteam06.domain.clothes.controller;
 
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequset;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
 import com.codeit.sb01otbooteam06.domain.clothes.service.ClothesService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,10 +31,10 @@ public class ClothesController {
   @PostMapping
   public ResponseEntity<ClothesDto> create(
       @RequestPart(value = "request")
-      ClothesCreateRequset clothesCreateRequset,
+      ClothesCreateRequest clothesCreateRequest,
       @RequestPart(value = "image", required = false) MultipartFile file) {
-    ClothesDto clothesDto = clothesService.create(clothesCreateRequset, file);
-    return ResponseEntity.ok(clothesDto);
+    ClothesDto clothesDto = clothesService.create(clothesCreateRequest, file);
+    return ResponseEntity.status(HttpStatus.CREATED).body(clothesDto);
   }
 
   @GetMapping

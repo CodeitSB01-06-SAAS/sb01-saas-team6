@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/clothes/attribute-defs")
+@RequestMapping("/api/clothes/attribute-defs")
 public class AttributeDefController {
 
   private final AttributeDefService attributeDefService;

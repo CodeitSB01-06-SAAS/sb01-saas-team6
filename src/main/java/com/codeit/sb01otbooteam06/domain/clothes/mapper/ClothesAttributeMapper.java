@@ -8,5 +8,8 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ClothesAttributeMapper {
 
+
   ClothesAttributeDto toDto(ClothesAttribute clothesAttribute);
+
+
 }

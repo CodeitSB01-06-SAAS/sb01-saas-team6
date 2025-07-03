@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface ClothesCustomRepository {
 
-  List<Clothes> findAllByCursor(String cursor, String idAfter, int i, String typeEqual,
+  List<Clothes> findAllByCursor(String cursor, String idAfter, int limit, String typeEqual,
       UUID ownerId);
 
   int getTotalCounts(String typeEqual, UUID ownerId);

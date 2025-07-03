@@ -5,7 +5,6 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefC
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeDefUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
-import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefAlreadyExistsException;
 import com.codeit.sb01otbooteam06.domain.clothes.exception.AttributeDefNotFoundException;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.AttributeDefMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.AttributeDefRepository;
@@ -36,10 +35,11 @@ public class AttributeDefService {
   public ClothesAttributeDefDto create(
       ClothesAttributeDefCreateRequest clothesAttributeDefCreateRequest) {
 
-    //중복 의상 속성 네임 검증
-    if (attributeDefRepository.existsByName(clothesAttributeDefCreateRequest.name())) {
-      throw new AttributeDefAlreadyExistsException();
-    }
+    //todo: 중복처리 고민, 프로토는 중복허용
+//    //중복 의상 속성 네임 검증
+//    if (attributeDefRepository.existsByName(clothesAttributeDefCreateRequest.name())) {
+//      throw new AttributeDefAlreadyExistsException();
+//    }
 
     AttributeDef attributeDef = new AttributeDef(
         clothesAttributeDefCreateRequest.name(),
@@ -93,10 +93,10 @@ public class AttributeDefService {
   public ClothesAttributeDefDto update(UUID definitionId,
       ClothesAttributeDefUpdateRequest updateRequest) {
 
-    //중복 의상 속성 네임 검증
-    if (attributeDefRepository.existsByName(updateRequest.name())) {
-      throw new AttributeDefAlreadyExistsException();
-    }
+//    //중복 의상 속성 네임 검증
+//    if (attributeDefRepository.existsByName(updateRequest.name())) {
+//      throw new AttributeDefAlreadyExistsException();
+//    }
 
     // attributeDef 검색
     AttributeDef attributeDef = attributeDefRepository.findById(definitionId)
@@ -118,7 +118,7 @@ public class AttributeDefService {
     //의상 속성 삭제
     attributeDefRepository.deleteById(attributeDefId);
 
-    //TODO: 삭제시 중간테이블 정보 삭제
+    //TODO: 삭제시 중간테이블 정보 삭제 -> CASCADE?
 
     return clothesAttributeDefDto;
   }

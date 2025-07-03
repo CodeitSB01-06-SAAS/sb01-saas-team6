@@ -1,11 +1,9 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
-import static com.codeit.sb01otbooteam06.domain.clothes.entity.QClothes.clothes;
-
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequset;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.PageResponse;
@@ -16,8 +14,6 @@ import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepo
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,22 +39,19 @@ public class ClothesService {
   private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
 
   //S3 이미지 저장 디렉토리 네임
-  private final String directory = clothes.getClass().getSimpleName();
+  private final String directory = "Clothes";
   private final ClothesAttributeRepository clothesAttributeRepository;
 
-
-  @PersistenceContext
-  private EntityManager entityManager;
 
   /**
    * 의상을 등록합니다.
    *
-   * @param clothesCreateRequset
+   * @param clothesCreateRequest
    * @param clothesImage
    * @return ClothesDto
    */
   @Transactional
-  public ClothesDto create(ClothesCreateRequset clothesCreateRequset, MultipartFile clothesImage) {
+  public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
 
 //    //TODO: User 찾기, 예외처리,
 //    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
@@ -73,8 +66,8 @@ public class ClothesService {
 
     Clothes clothes = new Clothes(
         owner,
-        clothesCreateRequset.name(),
-        clothesCreateRequset.type(),
+        clothesCreateRequest.name(),
+        clothesCreateRequest.type(),
         imageUrl
     );
 
@@ -82,7 +75,7 @@ public class ClothesService {
     clothesRepository.save(clothes);
 
     List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
-        clothesCreateRequset.attributes());
+        clothesCreateRequest.attributes());
 
     return makeClothesDto(clothes, clothesAttributes);
   }
@@ -96,6 +89,9 @@ public class ClothesService {
    */
   private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
       List<ClothesAttribute> attributes) {
+    if (attributes == null) {
+      return List.of();
+    }
     return attributes.stream()
         .map(clothesAttributeWithDefDtoMapper::toDto)
         .toList();
@@ -152,6 +148,8 @@ public class ClothesService {
     //결과를 담을 clothesDto리스트 
     List<ClothesDto> clothesDtos = new ArrayList<>();
 
+    //todo: n+1문제
+
     // 의상 결과 리스트에 대하여 dto 변환 수행
     for (Clothes clothes : resultClothes) {
       //의상에 대한 속성
@@ -193,7 +191,8 @@ public class ClothesService {
     Clothes clothes = clothesRepository.findById(clothesID)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesID));
 
-    // name, type의 수저이 없는 경우 예외처리
+    // name, type의 수정이 없는 경우 예외처리
+    // todo: 엔티티단으로 책임 넘기기?
     String newName = clothesUpdateRequest.name();
     String newType = clothesUpdateRequest.type();
     if (clothesUpdateRequest.name() == null) {
