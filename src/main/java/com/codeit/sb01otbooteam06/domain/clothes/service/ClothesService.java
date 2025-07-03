@@ -14,13 +14,13 @@ import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesAttributeWithDefD
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
-import com.codeit.sb01otbooteam06.domain.user.entity.Role;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,24 +60,12 @@ public class ClothesService {
   @Transactional
   public ClothesDto create(ClothesCreateRequset clothesCreateRequset, MultipartFile clothesImage) {
 
-//    //TODO: User 예외처리, 
+//    //TODO: User 찾기, 예외처리,
 //    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
 
-    //TODO: 더미 유저 삭제하기
-    User owner;
-    if (userRepository.existsByEmail("dummy@example.com")) {
-      owner = userRepository.findByEmail("dummy@example.com").orElse(null);
-    } else {
-      owner = User.builder()
-          .email("dummy@example.com")
-          .password("password123")  //
-          .name("더미 사용자")
-          .role(Role.USER)          //
-          .locked(false)
-          .linkedOAuthProviders(List.of("google", "kakao")) // 임의의 OAuth 제공자 리스트
-          .build();
-      userRepository.save(owner);
-    }
+    /// TODO: 임시: 현재 의상을 ownerId로 찾지않고 admin 유저에 등록 중
+    User owner = userRepository.findByEmail("admin@example.com")
+        .orElseThrow(() -> new NoSuchElementException());
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
@@ -205,6 +193,16 @@ public class ClothesService {
     Clothes clothes = clothesRepository.findById(clothesID)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesID));
 
+    // name, type의 수저이 없는 경우 예외처리
+    String newName = clothesUpdateRequest.name();
+    String newType = clothesUpdateRequest.type();
+    if (clothesUpdateRequest.name() == null) {
+      newName = clothes.getName();
+    }
+    if (clothesUpdateRequest.type() == null) {
+      newType = clothes.getType();
+    }
+
     // todo: 이미지가 새로 들어온 경우에 S3에 업로드
     String imageUrl = clothes.getImageUrl();
 //    if (clothesImage != null) {
@@ -213,8 +211,8 @@ public class ClothesService {
 
     //의상 정보 업데이트
     clothes.update(
-        clothesUpdateRequest.name(),
-        clothesUpdateRequest.type(),
+        newName,
+        newType,
         imageUrl
     );
 

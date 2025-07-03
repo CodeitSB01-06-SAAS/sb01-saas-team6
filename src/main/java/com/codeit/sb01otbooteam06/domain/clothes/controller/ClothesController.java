@@ -31,7 +31,7 @@ public class ClothesController {
   public ResponseEntity<ClothesDto> create(
       @RequestPart(value = "request")
       ClothesCreateRequset clothesCreateRequset,
-      @RequestPart(value = "image") MultipartFile file) {
+      @RequestPart(value = "image", required = false) MultipartFile file) {
     ClothesDto clothesDto = clothesService.create(clothesCreateRequset, file);
     return ResponseEntity.ok(clothesDto);
   }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record ClothesCreateRequset(
-    @NotBlank
+    @NotNull
     UUID ownerId,
 
     @NotBlank(message = "이름을 등록해주세요.")
