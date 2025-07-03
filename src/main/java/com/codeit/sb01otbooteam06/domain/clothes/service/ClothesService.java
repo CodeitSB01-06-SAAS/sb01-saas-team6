@@ -101,7 +101,7 @@ public class ClothesService {
 
 
   /**
-   * ClothesDto의 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
+   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
    *
    * @param attributes
    * @returnList<ClothesAttributeWithDefDto>
@@ -227,10 +227,7 @@ public class ClothesService {
 
   }
 
-  //TODO: 의상 추천 알고리즘
-  //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
-
-  //TODO: 구매 링크로 의상정보 불러오기
+  //TODO: (심화) 구매 링크로 의상정보 불러오기?
 
   /**
    * 의상을 삭제합니다.
@@ -239,7 +236,7 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
-    //todo: 의상 삭제시 중간테이블 삭제 -> 스키마제약으로
+    //todo: 의상 삭제시 중간테이블 삭제 ->
 
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));
