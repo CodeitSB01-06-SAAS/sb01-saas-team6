@@ -4,6 +4,8 @@ import com.codeit.sb01otbooteam06.domain.weather.entity.Location;
 import com.codeit.sb01otbooteam06.domain.weather.entity.QWeather;
 import com.codeit.sb01otbooteam06.domain.weather.entity.QWeatherLocationName;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.Instant;
 import java.util.List;
@@ -20,26 +22,36 @@ public class WeatherQueryRepositoryImpl implements WeatherQueryRepository {
   @Override
   public List<Weather> findForecastBundle(double lat, double lon) {
 
-    // 1. 최신 forecastedAt 1건만 먼저 찾기
+    // 소수점 3자리까지 비교용
+    final double TOL = 0.0005;
+
+    // 1단계: 최신 forecastedAt 찾기
     Instant latestForecastedAt = q.select(w.forecastedAt.max())
         .from(w)
-        .where(w.location.latitude.eq(lat)
-            .and(w.location.longitude.eq(lon)))
+        .where(w.location.latitude.between(lat - TOL, lat + TOL)
+            .and(w.location.longitude.between(lon - TOL, lon + TOL)))
         .fetchFirst();
 
     if (latestForecastedAt == null) {
       return List.of();
     }
 
-    // 2. 해당 시점의 forecastAt 행 전체 조회 (LocationName fetchJoin)
+    // 00시(KST) + 같은 좌표 묶음 조회
+    NumberExpression<Integer> hour = Expressions.numberTemplate(
+        Integer.class,
+        "date_part('hour', timezone('Asia/Seoul', {0}))",
+        w.forecastAt);
+
     return q.selectFrom(w)
         .leftJoin(w.locationNames, ln).fetchJoin()
-        .where(w.location.latitude.eq(lat)
-            .and(w.location.longitude.eq(lon))
-            .and(w.forecastedAt.eq(latestForecastedAt)))
-        .orderBy(w.forecastAt.desc())     // 최신 예보시각순
+        .where(w.location.latitude.between(lat - TOL, lat + TOL)
+            .and(w.location.longitude.between(lon - TOL, lon + TOL))
+            .and(w.forecastedAt.eq(latestForecastedAt))
+            .and(hour.eq(0)))
+        .orderBy(w.forecastAt.asc())
         .fetch();
   }
+
 
   // 2. 위치만 반환
   @Override
