@@ -1,5 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.feed.service.impl;
 
+import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedUpdateRequest;
@@ -28,6 +29,7 @@ public class FeedServiceImpl implements FeedService {
   private final FeedRepository feedRepository;
   private final UserRepository userRepository;
   private final WeatherRepository weatherRepository;
+  private final ClothesMapper clothesMapper;
   // 여기에 사용자 인증하는 서비스 추가.
 
   @Override
@@ -43,8 +45,7 @@ public class FeedServiceImpl implements FeedService {
 
     Feed feed = Feed.of(request.getContent(), author, weather);
     feedRepository.save(feed);
-    // todo : 나중에 변환 클래스 어떻게 해야할지
-    return FeedDto.fromEntity(feed);
+    return FeedDto.fromEntity(feed, clothesMapper);
   }
 
   @Transactional(readOnly = true)
@@ -53,7 +54,7 @@ public class FeedServiceImpl implements FeedService {
     Feed feed = feedRepository.findById(feedId)
         .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
 
-    return FeedDto.fromEntity(feed);
+    return FeedDto.fromEntity(feed, clothesMapper);
   }
 
   @Transactional
@@ -64,7 +65,7 @@ public class FeedServiceImpl implements FeedService {
     feed.updateContent(request.getContent());
     Feed updatedFeed = feedRepository.save(feed);
 
-    return FeedDto.fromEntity(updatedFeed);
+    return FeedDto.fromEntity(updatedFeed, clothesMapper);
   }
 
   @Transactional
@@ -77,7 +78,6 @@ public class FeedServiceImpl implements FeedService {
   }
 
 
-  // todo : 나중에 이넘 타입인지 확인 할것, 날씨 부분
   @Transactional(readOnly = true)
   @Override
   public FeedDtoCursorResponse getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
@@ -93,7 +93,7 @@ public class FeedServiceImpl implements FeedService {
         );
 
     List<FeedDto> data = feeds.stream()
-        .map(FeedDto::fromEntity)
+        .map(feed -> FeedDto.fromEntity(feed, clothesMapper))
         .toList();
 
     boolean hasNext = data.size() == size;

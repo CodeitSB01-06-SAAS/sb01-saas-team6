@@ -1,6 +1,16 @@
 package com.codeit.sb01otbooteam06.domain.feed.dto.response;
 
+import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
+import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
+import com.codeit.sb01otbooteam06.domain.feed.entity.ClothesFeed;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
+import com.codeit.sb01otbooteam06.domain.user.dto.AuthorDto;
+import com.codeit.sb01otbooteam06.domain.user.entity.User;
+import com.codeit.sb01otbooteam06.domain.weather.dto.WeatherDto;
+import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
+import com.codeit.sb01otbooteam06.domain.weather.mapper.WeatherDtoMapper;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +26,6 @@ public class FeedDto {
   private Instant createdAt;
   private Instant updatedAt;
 
-  // todo : 구현 한걸 확인 해야함.
   private AuthorDto author;
   private WeatherDto weather;
   private List<OotdDto> ootds;
@@ -41,12 +50,23 @@ public class FeedDto {
     this.likedByMe = likedByMe;
   }
 
-  public static FeedDto fromEntity(Feed feed) {
-    // todo: AuthorDto.fromEntity, WeatherDto.fromEntity, OotdDto.fromEntity 구현 필요
-    AuthorDto authorDto = AuthorDto.fromEntity(feed.getUser());
-    WeatherDto weatherDto = WeatherDto.fromEntity(feed.getWeather());
-    List<OotdDto> ootdDtos = feed.getOotds().stream()
-        .map(OotdDto::fromEntity)
+  public static FeedDto fromEntity(Feed feed, ClothesMapper clothesMapper) {
+    User author = feed.getUser();
+    AuthorDto authorDto = AuthorDto.builder()
+        .userId(author.getId())
+        .name(author.getName())
+        // todo : 사용자 프로필 이미지 url
+        .build();
+
+    Weather weather = feed.getWeather();
+    WeatherDtoMapper weatherDtoMapper = new WeatherDtoMapper();
+    WeatherDto weatherDto = weatherDtoMapper.toDto(weather);
+
+    List<ClothesFeed> clothesFeeds = feed.getClothesFeeds();
+    List<OotdDto> ootdDtos = clothesFeeds.stream()
+        .map(ClothesFeed::getClothes)
+        .map(clothesMapper::toDto)
+        .map(OotdDto::toDto)
         .toList();
 
     return new FeedDto(

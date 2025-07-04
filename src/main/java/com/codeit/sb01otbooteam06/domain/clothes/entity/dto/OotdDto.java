@@ -1,5 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.clothes.entity.dto;
 
+import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,5 +12,13 @@ public record OotdDto(
     String type,
     List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
 ) {
-
+  public static OotdDto toDto(ClothesDto clothesDto) {
+    return new OotdDto(
+        clothesDto.id(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        clothesDto.attributes()
+    );
+  }
 }
