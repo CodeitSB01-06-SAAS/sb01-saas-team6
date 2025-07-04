@@ -28,7 +28,6 @@ public class CommentDto {
   }
 
   public static CommentDto fromEntity(Comment comment) {
-    // todo : 이부분 변환 클래스 나중에 변경하든가, 그대로 쓰던가 해야함.
     User user = comment.getUser();
     AuthorDto author = AuthorDto.builder()
         .userId(user.getId())

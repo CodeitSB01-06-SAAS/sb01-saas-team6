@@ -87,13 +87,13 @@ public class FeedController {
 
   @PostMapping("/{feedId}/like")
   public ResponseEntity<FeedDto> likeFeed(@PathVariable UUID feedId) {
-    likeService.likedFeed(feedId);
+    likeService.likeFeed(feedId);
     return ResponseEntity.status(HttpStatus.OK).body(feedService.getFeed(feedId));
   }
 
   @DeleteMapping("/{feedId}/like")
   public ResponseEntity<Void> unlikeFeed(@PathVariable UUID feedId) {
-    likeService.unlikedFeed(feedId);
+    likeService.unlikeFeed(feedId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 

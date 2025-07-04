@@ -25,7 +25,7 @@ public class FeedLikeServiceImpl implements FeedLikeService {
 
   @Override
   @Transactional
-  public void likedFeed(UUID feedId) {
+  public void likeFeed(UUID feedId) {
     /**
       todo : 좋아요 누르는 유저 아이디를 받아오는 서비스 사용해서 받아 와야 함.
       UUID userId = authService.getCurrentUserId();
@@ -52,7 +52,7 @@ public class FeedLikeServiceImpl implements FeedLikeService {
 
   @Transactional
   @Override
-  public void unlikedFeed(UUID feedId) {
+  public void unlikeFeed(UUID feedId) {
     // UUID userId = authService.getCurrentUserId();
     // User user = userRepository.findById(userId)
     //    .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
