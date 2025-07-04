@@ -1,7 +1,5 @@
 package com.codeit.sb01otbooteam06.domain.feed.dto.response;
 
-import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.feed.entity.ClothesFeed;
@@ -50,7 +48,7 @@ public class FeedDto {
     this.likedByMe = likedByMe;
   }
 
-  public static FeedDto fromEntity(Feed feed, ClothesMapper clothesMapper) {
+  public static FeedDto fromEntity(Feed feed, ClothesMapper clothesMapper, WeatherDtoMapper weatherMapper) {
     User author = feed.getUser();
     AuthorDto authorDto = AuthorDto.builder()
         .userId(author.getId())
@@ -59,8 +57,7 @@ public class FeedDto {
         .build();
 
     Weather weather = feed.getWeather();
-    WeatherDtoMapper weatherDtoMapper = new WeatherDtoMapper();
-    WeatherDto weatherDto = weatherDtoMapper.toDto(weather);
+    WeatherDto weatherDto = weatherMapper.toDto(weather);
 
     List<ClothesFeed> clothesFeeds = feed.getClothesFeeds();
     List<OotdDto> ootdDtos = clothesFeeds.stream()

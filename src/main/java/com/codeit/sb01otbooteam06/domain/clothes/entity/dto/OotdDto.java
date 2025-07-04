@@ -1,6 +1,5 @@
 package com.codeit.sb01otbooteam06.domain.clothes.entity.dto;
 
-import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import java.util.List;
 import java.util.UUID;
 
