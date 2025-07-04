@@ -49,6 +49,9 @@ public class Feed extends BaseUpdatableEntity {
   @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Comment> comments = new ArrayList<>();
 
+  @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ClothesFeed> clothesFeeds = new ArrayList<>();
+
 
   public Feed(String content, User user, Weather weather) {
     this.content = content;

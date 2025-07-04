@@ -11,5 +11,13 @@ public record OotdDto(
     String type,
     List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
 ) {
-
+  public static OotdDto toDto(ClothesDto clothesDto) {
+    return new OotdDto(
+        clothesDto.id(),
+        clothesDto.name(),
+        clothesDto.imageUrl(),
+        clothesDto.type(),
+        clothesDto.attributes()
+    );
+  }
 }

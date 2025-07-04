@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public interface FeedLikeService {
 
-  void likedFeed(UUID feedId);
+  void likeFeed(UUID feedId);
 
-  void unlikedFeed(UUID feedId);
+  void unlikeFeed(UUID feedId);
 
 }
