@@ -252,3 +252,14 @@ CREATE TABLE direct_messages
     CONSTRAINT fk_dm_sender FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_dm_receiver FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
 );
+
+CREATE TABLE clothes_feeds
+(
+    id UUID PRIMARY KEY,
+    clothes_id UUID NOT NULL,
+    feed_id UUID NOT NULL,
+
+    CONSTRAINT fk_clothes_feeds_clothes FOREIGN KEY (clothes_id) REFERENCES clothes(id) ON DELETE CASCADE,
+    CONSTRAINT fk_clothes_feeds_feed FOREIGN KEY (feed_id) REFERENCES feeds(id) ON DELETE CASCADE,
+    CONSTRAINT uq_clothes_feed UNIQUE (clothes_id, feed_id) -- 중복 방지
+);
