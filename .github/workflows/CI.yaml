@@ -1,14 +1,29 @@
 name: github actions CI
 on:
+  push:
+    branches:
+      - dev
+      - main
   pull_request:
-    types: [opened]
-    branches: ["dev", "main"]
+    branches:
+      - dev
+      - main
 
 
 jobs:
+  runs-on: ubuntu-latest
   steps:
+    - name: checkout actions
+      uses: actions/checkout@v4
+
+    - name: JDK 17
+    - uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
     - name: actions/ cache
-      uses: actions/cache@v4
+    - uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
