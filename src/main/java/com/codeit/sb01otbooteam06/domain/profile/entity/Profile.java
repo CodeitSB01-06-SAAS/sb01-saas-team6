@@ -1,36 +1,29 @@
 package com.codeit.sb01otbooteam06.domain.profile.entity;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import com.codeit.sb01otbooteam06.domain.user.entity.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.util.UUID;
 
-@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
+@Entity
 @Table(name = "profiles")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Profile {
 
   @Id
-  @Column(nullable = false)
-  private String id;  // users.id 참조 (1:1 관계)
+  private UUID id;
+
+  @MapsId
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id")
+  private User user;
 
   @Column(nullable = false)
   private String name;
@@ -39,7 +32,7 @@ public class Profile {
   @Column(nullable = false)
   private Gender gender;
 
-  @Column(name = "birth_date", nullable = false)
+  @Column(nullable = false)
   private LocalDate birthDate;
 
   @Column(nullable = false)
@@ -59,17 +52,74 @@ public class Profile {
   @Column(name = "location_name")
   private List<String> locationNames;
 
-  @Column(name = "temperature_sensitivity", nullable = false)
+  @Column(nullable = false)
   private int temperatureSensitivity;
 
-  @Column(name = "profile_image_url")
+  @Column
   private String profileImageUrl;
 
-  @CreationTimestamp
-  @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime createdAt = LocalDateTime.now();
 
-  @UpdateTimestamp
-  @Column(name = "updated_at")
+  @Column
   private LocalDateTime updatedAt;
+
+  public Profile(
+          User user,
+          String name,
+          Gender gender,
+          LocalDate birthDate,
+          double latitude,
+          double longitude,
+          int x,
+          int y,
+          List<String> locationNames,
+          int temperatureSensitivity,
+          String profileImageUrl
+  ) {
+    this.user = user;
+    this.id = user.getId();
+    this.name = name;
+    this.gender = gender;
+    this.birthDate = birthDate;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.x = x;
+    this.y = y;
+    this.locationNames = locationNames;
+    this.temperatureSensitivity = temperatureSensitivity;
+    this.profileImageUrl = profileImageUrl;
+    this.createdAt = LocalDateTime.now();
+  }
+
+  public void update(
+          String name,
+          Gender gender,
+          LocalDate birthDate,
+          double latitude,
+          double longitude,
+          int x,
+          int y,
+          List<String> locationNames,
+          int temperatureSensitivity,
+          String profileImageUrl
+  ) {
+    this.name = name;
+    this.gender = gender;
+    this.birthDate = birthDate;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.x = x;
+    this.y = y;
+    this.locationNames = locationNames;
+    this.temperatureSensitivity = temperatureSensitivity;
+    this.profileImageUrl = profileImageUrl;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  /** 프로필 이미지 URL만 업데이트하는 setter */
+  public void setProfileImageUrl(String profileImageUrl) {
+    this.profileImageUrl = profileImageUrl;
+    this.updatedAt = LocalDateTime.now();
+  }
 }
