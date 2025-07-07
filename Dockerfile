@@ -1,11 +1,23 @@
-# Use official OpenJDK as base image
-FROM openjdk:17-jdk-slim
+# 1. Build stage
+FROM openjdk:17-jdk-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy build jar file
-COPY build/libs/*.jar app.jar
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
 
-# Run the jar file
+RUN chmod +x ./gradlew
+RUN ./gradlew dependencies
+
+COPY src ./src
+
+RUN ./gradlew build -x test
+
+# 2. Runtime stage
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
