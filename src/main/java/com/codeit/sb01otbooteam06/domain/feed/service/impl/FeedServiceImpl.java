@@ -39,8 +39,8 @@ public class FeedServiceImpl implements FeedService {
   @Transactional
   public FeedDto createFeed(FeedCreateRequest request) {
 
-    // todo : 사용자 인증하는 메서드 추가
-    User author = userRepository.findById(request.getAuthorId())
+    UUID userId = authService.getCurrentUserId();
+    User author = userRepository.findById(userId)
         .orElseThrow(() -> new OtbooException(ErrorCode.USER_NOT_FOUND));
 
     Weather weather = weatherRepository.findById(request.getWeatherId())

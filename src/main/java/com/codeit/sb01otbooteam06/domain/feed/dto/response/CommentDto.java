@@ -1,6 +1,7 @@
 package com.codeit.sb01otbooteam06.domain.feed.dto.response;
 
 import com.codeit.sb01otbooteam06.domain.feed.entity.Comment;
+import com.codeit.sb01otbooteam06.domain.profile.entity.Profile;
 import com.codeit.sb01otbooteam06.domain.user.dto.AuthorDto;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import java.time.Instant;
@@ -29,11 +30,11 @@ public class CommentDto {
 
   public static CommentDto fromEntity(Comment comment) {
     User user = comment.getUser();
-    //Profile profile = user.getProfile()
+    Profile profile = user.getProfile();
     AuthorDto author = AuthorDto.builder()
         .userId(user.getId())
         .name(user.getName())
-        //.profileImageUrl(profile.getProfileImageUrl())
+        .profileImageUrl(profile.getProfileImageUrl())
         .build();
 
     return new CommentDto(
