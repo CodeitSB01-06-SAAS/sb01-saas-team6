@@ -34,9 +34,9 @@ public class CommentServiceImpl implements CommentService {
   public CommentDto createComment(UUID feedId ,CommentCreateRequest request) {
     //todo : 나중에 인증 관련에서 개발 할때 리팩토링.
     User author = userRepository.findById(request.getAuthorId())
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.USER_NOT_FOUND));
     Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.FEED_NOT_FOUND));
 
     Comment comment = Comment.of(request.getContent(), author.getName(), author, feed);
 

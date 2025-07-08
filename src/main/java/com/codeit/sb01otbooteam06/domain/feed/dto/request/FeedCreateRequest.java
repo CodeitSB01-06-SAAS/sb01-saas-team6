@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor()
 public class FeedCreateRequest {
 
   @NotNull(message = "작성자 ID는 필수입니다")
