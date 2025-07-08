@@ -1,5 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
+import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
@@ -13,14 +14,13 @@ import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
+import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +35,7 @@ public class ClothesService {
 
   private final AttributeDefService attributeDefService;
   private final ClothesAttributeService clothesAttributeService;
+  private final AuthService authService;
 
   private final ClothesMapper clothesMapper;
   private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
@@ -54,14 +55,12 @@ public class ClothesService {
   @Transactional
   public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
 
-    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//    UUID userId = authService.getCurrentUserId();
+//    System.out.println(userId);
 
-//    //TODO: User 찾기, 예외처리,
-//    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
-
-    /// TODO: 임시: 현재 의상을 ownerId로 찾지않고 admin 유저에 등록 중
-    User owner = userRepository.findByEmail("admin@example.com")
-        .orElseThrow(() -> new NoSuchElementException());
+    //유저 찾기
+    User owner = userRepository.findById(clothesCreateRequest.ownerId())
+        .orElseThrow(() -> new UserNotFoundException(clothesCreateRequest.ownerId()));
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
