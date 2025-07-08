@@ -46,6 +46,19 @@ CREATE TABLE weathers
     UNIQUE (forecasted_at, forecast_at, grid_x, grid_y)
 );
 
+-- 인덱스 추가
+CREATE UNIQUE INDEX IF NOT EXISTS ux_weathers_daily
+    ON weathers (forecasted_at, forecast_at, grid_x, grid_y);
+
+-- forecast_at 단일 컬럼 인덱스 (00:00 조건 필터용)
+CREATE INDEX IF NOT EXISTS ix_weathers_forecast_at
+    ON weathers (forecast_at);
+
+-- 격자 좌표 복합 인덱스
+CREATE INDEX IF NOT EXISTS ix_weathers_grid
+    ON weathers (grid_x, grid_y);
+
+
 /* ---------------- 행정동 이름 목록 ---------------- */
 CREATE TABLE weather_location_names
 (
