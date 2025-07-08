@@ -88,4 +88,7 @@ public interface FeedRepository extends JpaRepository<Feed, UUID> {
       @Param("precipitationType") String precipitationType
   );
 
+  boolean existsByIdAndUserId(UUID feedId, UUID userId);
+
+
 }
