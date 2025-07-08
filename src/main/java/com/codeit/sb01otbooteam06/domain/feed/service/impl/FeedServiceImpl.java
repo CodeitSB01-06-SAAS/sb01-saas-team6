@@ -1,5 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.feed.service.impl;
 
+import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedCreateRequest;
@@ -32,7 +33,7 @@ public class FeedServiceImpl implements FeedService {
   private final WeatherRepository weatherRepository;
   private final ClothesMapper clothesMapper;
   private final WeatherDtoMapper weatherDtoMapper;
-  // 여기에 사용자 인증하는 서비스 추가.
+  private final AuthService authService;
 
   @Override
   @Transactional
@@ -40,10 +41,10 @@ public class FeedServiceImpl implements FeedService {
 
     // todo : 사용자 인증하는 메서드 추가
     User author = userRepository.findById(request.getAuthorId())
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.USER_NOT_FOUND));
 
     Weather weather = weatherRepository.findById(request.getWeatherId())
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.WEATHER_NOT_FOUND));
 
     Feed feed = Feed.of(request.getContent(), author, weather);
     feedRepository.save(feed);
@@ -54,7 +55,7 @@ public class FeedServiceImpl implements FeedService {
   @Override
   public FeedDto getFeed(UUID feedId) {
     Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.FEED_NOT_FOUND));
 
     return FeedDto.fromEntity(feed, clothesMapper, weatherDtoMapper);
   }
@@ -63,7 +64,7 @@ public class FeedServiceImpl implements FeedService {
   @Override
   public FeedDto updateFeed(UUID feedId, FeedUpdateRequest request) {
     Feed feed = feedRepository.findById(feedId)
-        .orElseThrow(() -> new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR));
+        .orElseThrow(() -> new OtbooException(ErrorCode.FEED_NOT_FOUND));
     feed.updateContent(request.getContent());
     Feed updatedFeed = feedRepository.save(feed);
 
@@ -74,7 +75,7 @@ public class FeedServiceImpl implements FeedService {
   @Override
   public void deleteFeed(UUID feedId) {
     if(!feedRepository.existsById(feedId)){
-      throw new OtbooException(ErrorCode.ILLEGAL_ARGUMENT_ERROR);
+      throw new OtbooException(ErrorCode.FEED_NOT_FOUND);
     }
     feedRepository.deleteById(feedId);
   }

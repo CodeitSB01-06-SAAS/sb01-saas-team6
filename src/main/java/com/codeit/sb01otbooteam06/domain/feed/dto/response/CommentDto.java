@@ -29,10 +29,11 @@ public class CommentDto {
 
   public static CommentDto fromEntity(Comment comment) {
     User user = comment.getUser();
+    //Profile profile = user.getProfile()
     AuthorDto author = AuthorDto.builder()
         .userId(user.getId())
         .name(user.getName())
-        // todo : 사용자 프로필 이미지 url
+        //.profileImageUrl(profile.getProfileImageUrl())
         .build();
 
     return new CommentDto(
