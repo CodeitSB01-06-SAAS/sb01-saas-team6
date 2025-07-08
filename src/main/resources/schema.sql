@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS
     attributes_defs,
     clothes,
     clothes_attributes,
+    clothes_feeds,
     comments,
     direct_messages,
     feeds,
