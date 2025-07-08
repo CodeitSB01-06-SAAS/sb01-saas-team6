@@ -9,9 +9,9 @@ import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
-import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
-import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +20,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -58,14 +59,39 @@ public class RecommendationService {
      * 4. 따뜻한 정도
      * */
 
-    //날씨 데이터 가져오기
-    Weather weather = weatherRepository.findById(weatherId)
-        .orElseThrow(() -> new WeatherNotFoundException());
+//    //날씨 데이터 가져오기
+//    Weather weather = weatherRepository.findById(weatherId)
+//        .orElseThrow(() -> new WeatherNotFoundException());
 
     //의상 데이터 가져오기
     List<Clothes> clothesList = clothesRepository.findAllByOwner(user);
 
-    //날씨 추천 로직
+    ///날씨 추천 로직
+    /**
+     * 1. 날씨 데이터 가져옴
+     * 2. gen-ai에게 프롬포팅해서 결과값(의상 속성중 날씨 관련)을 수치화
+     * 3. 해당 수치를 토대로 의상리스트에서, 속성에서 값이 높은것들 산출
+     * 4. 의상 추천 조합 생성해 DB저장
+     *
+     * TODO: 1)프로필 위치로, 배치 작업으로 DB저장해 꺼내써 빠른 사용자 속도 경험 제공,
+     *       2)새로운 위치시 즉시호출
+     */
+
+    //gen-ai 클라이언트
+    Client client = new Client();
+
+    long startTime = System.currentTimeMillis();
+
+    GenerateContentResponse response =
+        client.models.generateContent(
+            "gemini-2.5-flash",
+            "Explain how AI works in a few words",
+            types.);
+
+    long endTime = System.currentTimeMillis();
+
+    System.out.println("response = " + response.text());
+    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
 
     //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
     List<OotdDto> result = new ArrayList<>();
