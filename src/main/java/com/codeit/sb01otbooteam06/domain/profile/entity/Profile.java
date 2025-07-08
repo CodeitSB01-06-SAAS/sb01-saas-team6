@@ -1,5 +1,6 @@
 package com.codeit.sb01otbooteam06.domain.profile.entity;
 
+import com.codeit.sb01otbooteam06.domain.base.BaseUpdatableEntity;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,10 +15,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "profiles")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Profile {
-
-  @Id
-  private UUID id;
+public class Profile extends BaseUpdatableEntity {
 
   @MapsId
   @OneToOne(fetch = FetchType.LAZY)
@@ -58,12 +55,6 @@ public class Profile {
   @Column
   private String profileImageUrl;
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
-
-  @Column
-  private LocalDateTime updatedAt;
-
   public Profile(
           User user,
           String name,
@@ -78,7 +69,6 @@ public class Profile {
           String profileImageUrl
   ) {
     this.user = user;
-    this.id = user.getId();
     this.name = name;
     this.gender = gender;
     this.birthDate = birthDate;
@@ -89,7 +79,6 @@ public class Profile {
     this.locationNames = locationNames;
     this.temperatureSensitivity = temperatureSensitivity;
     this.profileImageUrl = profileImageUrl;
-    this.createdAt = LocalDateTime.now();
   }
 
   public void update(
@@ -114,12 +103,10 @@ public class Profile {
     this.locationNames = locationNames;
     this.temperatureSensitivity = temperatureSensitivity;
     this.profileImageUrl = profileImageUrl;
-    this.updatedAt = LocalDateTime.now();
   }
 
   /** 프로필 이미지 URL만 업데이트하는 setter */
   public void setProfileImageUrl(String profileImageUrl) {
     this.profileImageUrl = profileImageUrl;
-    this.updatedAt = LocalDateTime.now();
   }
 }
