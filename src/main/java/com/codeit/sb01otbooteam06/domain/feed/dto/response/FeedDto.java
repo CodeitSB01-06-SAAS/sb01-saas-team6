@@ -50,10 +50,11 @@ public class FeedDto {
 
   public static FeedDto fromEntity(Feed feed, ClothesMapper clothesMapper, WeatherDtoMapper weatherMapper) {
     User author = feed.getUser();
+    //Profile profile = user.getProfile()
     AuthorDto authorDto = AuthorDto.builder()
         .userId(author.getId())
         .name(author.getName())
-        // todo : 사용자 프로필 이미지 url
+        //.profileImageUrl(profile.getProfileImageUrl())
         .build();
 
     Weather weather = feed.getWeather();
