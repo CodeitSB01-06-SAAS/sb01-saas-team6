@@ -1,15 +1,15 @@
 spring:
-#  sql:
-#    init:
-#      mode: always      # 항상 schema.sql, data.sql 실행
-#      schema-locations: classpath:schema.sql
-#      data-locations: classpath:data.sql
-#
-#  batch:
-#    jdbc:
-#      initialize-schema: always
-#    job:
-#      enabled: false
+  sql:
+    init:
+      mode: always      # 항상 schema.sql, data.sql 실행
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  #  batch:
+  #    jdbc:
+  #      initialize-schema: always
+  #    job:
+  #      enabled: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/Otboo
@@ -18,7 +18,7 @@ spring:
     password: 1234
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     database: postgresql
     properties:
       hibernate:
