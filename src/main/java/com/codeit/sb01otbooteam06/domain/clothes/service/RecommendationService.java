@@ -1,6 +1,7 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 
+import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
@@ -8,7 +9,10 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.RecommendationDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
+import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
+import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
+import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
@@ -27,10 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecommendationService {
 
   private final ClothesService clothesService;
+  private final AuthService authService;
 
   //todo: 서비스? 웨더 확인해보고 추후 변경
   private final WeatherRepository weatherRepository;
-
   private final UserRepository userRepository;
 
   private final ClothesMapper clothesMapper;
@@ -41,10 +45,13 @@ public class RecommendationService {
   @Transactional
   public RecommendationDto create(UUID weatherId) {
 
-    //todo: 유저 아이디 획득
+    //현재 로그인한 유저의 아이디를 획득한다.
+    UUID userId = authService.getCurrentUserId();
+    System.out.println(userId);
 
-    User user = userRepository.findByEmail("admin@example.com")
-        .orElseThrow(() -> new NoSuchElementException());
+    User user = userRepository.findById(userId).orElseThrow(
+        () -> new UserNotFoundException(userId)
+    );
 
     /**날씨 데이터
      * 1. 기온
@@ -59,9 +66,14 @@ public class RecommendationService {
      * 4. 따뜻한 정도
      * */
 
-//    //날씨 데이터 가져오기
-//    Weather weather = weatherRepository.findById(weatherId)
-//        .orElseThrow(() -> new WeatherNotFoundException());
+    //날씨 데이터 가져오기
+    Weather weather = weatherRepository.findById(weatherId)
+        .orElseThrow(() -> new WeatherNotFoundException());
+
+    //날씨 데이터에서 필요한 것 추출
+    // humidity, temperature, windSpeed
+    List<Long> weatherThings = new ArrayList<>();
+    String skyStatus = String.valueOf(weather.getSkyStatus());
 
     //의상 데이터 가져오기
     List<Clothes> clothesList = clothesRepository.findAllByOwner(user);
@@ -85,8 +97,10 @@ public class RecommendationService {
     GenerateContentResponse response =
         client.models.generateContent(
             "gemini-2.5-flash",
+            //todo: text를 env에서 관리하기(프롬프트 비공개)
             "Explain how AI works in a few words",
-            types.);
+            null
+        );
 
     long endTime = System.currentTimeMillis();
 
@@ -94,12 +108,21 @@ public class RecommendationService {
     System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
 
     //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
+    //todo: 추천의상을 저장을 위한 테이블이 필요함.
     List<OotdDto> result = new ArrayList<>();
     result.add(makeDummyOotdDto("상의", "TOP"));
     result.add(makeDummyOotdDto("하의", "BOTTOM"));
     result.add(makeDummyOotdDto("아우터", "OUTER"));
     result.add(makeDummyOotdDto("모자", "HAT"));
     return new RecommendationDto(weatherId, user.getId(), result);
+  }
+
+  private List<Integer> weightByAi(List<Integer> weatherThings, String skyStatus) {
+
+    //todo: 배열? 길이가 고정이기 때문에.
+    List<Integer> values = new ArrayList<>();
+
+    return values;
   }
 
 

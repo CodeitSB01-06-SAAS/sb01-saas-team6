@@ -1,6 +1,5 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
-import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
@@ -33,9 +32,7 @@ public class ClothesService {
   private final ClothesRepository clothesRepository;
   private final UserRepository userRepository;
 
-  private final AttributeDefService attributeDefService;
   private final ClothesAttributeService clothesAttributeService;
-  private final AuthService authService;
 
   private final ClothesMapper clothesMapper;
   private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
@@ -54,9 +51,6 @@ public class ClothesService {
    */
   @Transactional
   public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
-
-//    UUID userId = authService.getCurrentUserId();
-//    System.out.println(userId);
 
     //유저 찾기
     User owner = userRepository.findById(clothesCreateRequest.ownerId())
