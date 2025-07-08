@@ -2,7 +2,6 @@ package com.codeit.sb01otbooteam06.domain.user.service;
 
 import com.codeit.sb01otbooteam06.domain.profile.entity.Gender;
 import com.codeit.sb01otbooteam06.domain.profile.entity.Profile;
-import com.codeit.sb01otbooteam06.domain.profile.repository.ProfileRepository;
 import com.codeit.sb01otbooteam06.domain.user.dto.*;
 import com.codeit.sb01otbooteam06.domain.user.entity.Role;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
@@ -25,7 +24,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ProfileRepository profileRepository;
 
     @Override
     @Transactional
@@ -43,9 +41,6 @@ public class UserServiceImpl implements UserService {
                 .linkedOAuthProviders(new ArrayList<>())
                 .build();
 
-        userRepository.saveAndFlush(user);
-
-        /* Profile 동시 생성 (주석)
         Profile profile = new Profile(
                 user,
                 user.getName(),
@@ -60,7 +55,9 @@ public class UserServiceImpl implements UserService {
                 null
         );
 
-        profileRepository.save(profile);*/
+        user.setProfile(profile);  // User에 Profile 세팅
+
+        userRepository.save(user); // Profile까지 함께 저장됨 (Cascade)
 
         return toDto(user);
     }
@@ -110,7 +107,6 @@ public class UserServiceImpl implements UserService {
                 .sortDirection(sortDirection)
                 .build();
     }
-
 
     private User findById(UUID userId) {
         return userRepository.findById(userId)
