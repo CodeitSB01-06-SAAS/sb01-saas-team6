@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.UUID;
 
 /**
@@ -94,5 +95,16 @@ public class AuthServiceImpl implements AuthService {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
+    }
+
+    @Override
+    public UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof UUID)) {
+            throw new IllegalStateException("인증된 사용자 정보를 찾을 수 없습니다.");
+        }
+
+        return (UUID) authentication.getPrincipal();
     }
 }

@@ -39,6 +39,9 @@ logging:
         sql: warn
         type.descriptor.sql: trace
 jwt:
-  secret: 개발용_비밀키_32자리_이상_랜덤값
-  access-expiration: 3600000 #1시간
-  refresh-expiration: 604800000 #7일
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+file:
+  profile-image-dir: C:/Users/user/profile-images
+  profile-image-url-base: /uploads/profiles/
