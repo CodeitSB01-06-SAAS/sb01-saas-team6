@@ -4,7 +4,6 @@ import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.CommentCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.CommentDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.CommentDtoCursorResponse;
-import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Comment;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
 import com.codeit.sb01otbooteam06.domain.feed.repository.CommentRepository;
