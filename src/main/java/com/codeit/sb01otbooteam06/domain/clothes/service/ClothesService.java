@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +53,8 @@ public class ClothesService {
    */
   @Transactional
   public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
+
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 //    //TODO: User 찾기, 예외처리,
 //    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();

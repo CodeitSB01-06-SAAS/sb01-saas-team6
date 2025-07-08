@@ -6,8 +6,11 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.RecommendationDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
+import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
+import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
+import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +33,7 @@ public class RecommendationService {
   private final UserRepository userRepository;
 
   private final ClothesMapper clothesMapper;
+  private final ClothesRepository clothesRepository;
 
   //TODO: 의상 추천 알고리즘
   //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
@@ -37,12 +41,31 @@ public class RecommendationService {
   public RecommendationDto create(UUID weatherId) {
 
     //todo: 유저 아이디 획득
+
     User user = userRepository.findByEmail("admin@example.com")
         .orElseThrow(() -> new NoSuchElementException());
 
-    //날씨
+    /**날씨 데이터
+     * 1. 기온
+     * 2. 바람
+     * 3. 날씨
+     * 4. 습도
+     *
+     * 의상 속성
+     * 1. 두께감
+     * 2. 계절
+     * 3. 안감 
+     * 4. 따뜻한 정도
+     * */
 
-    // 온도
+    //날씨 데이터 가져오기
+    Weather weather = weatherRepository.findById(weatherId)
+        .orElseThrow(() -> new WeatherNotFoundException());
+
+    //의상 데이터 가져오기
+    List<Clothes> clothesList = clothesRepository.findAllByOwner(user);
+
+    //날씨 추천 로직
 
     //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
     List<OotdDto> result = new ArrayList<>();
