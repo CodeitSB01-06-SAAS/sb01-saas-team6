@@ -40,6 +40,7 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + accessTokenValidityInMillis);
 
         return Jwts.builder()
+                .claim("userId", userId.toString())
                 .setSubject(userId.toString())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
