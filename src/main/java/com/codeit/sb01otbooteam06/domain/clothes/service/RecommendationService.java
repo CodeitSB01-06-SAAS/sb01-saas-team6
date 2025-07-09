@@ -3,7 +3,6 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.RecommendationDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
@@ -13,9 +12,7 @@ import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -114,25 +111,5 @@ public class RecommendationService {
     return values;
   }
 
-
-  //admin의 더미 Ootd데이터 생성
-  private OotdDto makeDummyOotdDto(String name, String type) {
-
-    User user = userRepository.findByEmail("admin@example.com")
-        .orElseThrow(() -> new NoSuchElementException());
-
-    Clothes clothes = new Clothes(user, name, type, null);
-
-    //의상 저장
-    clothesService.create(new ClothesCreateRequest(
-        user.getId(),
-        name, type,
-        Collections.emptyList()
-
-    ), null);
-
-    return OotdDto.toDto(clothesMapper.toDto(clothes));
-
-  }
 
 }

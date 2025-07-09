@@ -229,8 +229,6 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
-    //todo: 의상 삭제시 중간테이블 삭제 ->
-
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));
     clothesRepository.deleteById(clothesId);
