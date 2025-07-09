@@ -13,6 +13,6 @@ public interface WeatherQueryRepository {
   List<Weather> findForecastBundle(double lat, double lon);
 
   // 위치 정보만 필요할 시 반환
-  Optional<Weather> latestLocation(double lat, double lon);
+  Optional<Weather> latestWeather(double lat, double lon);
 
 }

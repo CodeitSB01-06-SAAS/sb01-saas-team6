@@ -44,7 +44,7 @@ public class WeatherQueryRepositoryImpl implements WeatherQueryRepository {
 
   // 2. 위치만 반환
   @Override
-  public Optional<Weather> latestLocation(double lat, double lon) {
+  public Optional<Weather> latestWeather(double lat, double lon) {
 
     Weather weather = q.selectFrom(w)
         .leftJoin(w.locationNames, ln).fetchJoin()    // ← 이름까지 fetch

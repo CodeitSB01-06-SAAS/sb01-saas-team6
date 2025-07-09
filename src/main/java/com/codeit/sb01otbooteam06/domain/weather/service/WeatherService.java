@@ -51,7 +51,7 @@ public class WeatherService {
     public WeatherAPILocationDto findLocation(double lat, double lon) {
 
         // DB에서 해당 위치의 이름명이 있는지 확인
-        return weatherRepository.latestLocation(lat, lon)
+        return weatherRepository.latestWeather(lat, lon)
             .map(weather -> {
                 // 행정동 이름: DB에 있으면 그대로, 없으면 Kakao 호출
                 List<String> names = weather.getLocationNames().isEmpty()
@@ -131,8 +131,8 @@ public class WeatherService {
             ForecastKeyDaily key = ForecastKeyDaily.from(baseDate, baseTime, fcstDate)
                 .withGrid(grid.gridX(), grid.gridY());
             Instant fcstInst = fcstDate
-                .atStartOfDay()                // 2025-07-11 00:00
-                .atZone(ZoneOffset.UTC)        // 2025-07-11 00:00 Z
+                .atStartOfDay()
+                .atZone(kst)
                 .toInstant();
 
             Weather w = weatherRepository.findById(key.toUuid())
