@@ -18,36 +18,25 @@ public class WeatherQueryRepositoryImpl implements WeatherQueryRepository {
   private final JPAQueryFactory q;
   private static final QWeather w = QWeather.weather;
   private static final QWeatherLocationName ln = QWeatherLocationName.weatherLocationName;
-
+  private final double TOL = 0.0005;
   @Override
   public List<Weather> findForecastBundle(double lat, double lon) {
 
-    // 소수점 3자리까지 비교용
-    final double TOL = 0.0005;
-
-    // 1단계: 최신 forecastedAt 찾기
-    Instant latestForecastedAt = q.select(w.forecastedAt.max())
+    /* ── 1단계: 최신 예보 발표 시각 찾기 ───────────────── */
+    Instant latest = q.select(w.forecastedAt.max())
         .from(w)
         .where(w.location.latitude.between(lat - TOL, lat + TOL)
             .and(w.location.longitude.between(lon - TOL, lon + TOL)))
         .fetchFirst();
 
-    if (latestForecastedAt == null) {
-      return List.of();
-    }
+    if (latest == null) return List.of();
 
-    // 00시(KST) + 같은 좌표 묶음 조회
-    NumberExpression<Integer> hour = Expressions.numberTemplate(
-        Integer.class,
-        "date_part('hour', timezone('Asia/Seoul', {0}))",
-        w.forecastAt);
-
+    /* ── 2단계: 시간 필터 없이 모두 가져오기 ─────────────── */
     return q.selectFrom(w)
         .leftJoin(w.locationNames, ln).fetchJoin()
         .where(w.location.latitude.between(lat - TOL, lat + TOL)
             .and(w.location.longitude.between(lon - TOL, lon + TOL))
-            .and(w.forecastedAt.eq(latestForecastedAt))
-            .and(hour.eq(0)))
+            .and(w.forecastedAt.eq(latest)))
         .orderBy(w.forecastAt.asc())
         .fetch();
   }
@@ -55,16 +44,16 @@ public class WeatherQueryRepositoryImpl implements WeatherQueryRepository {
 
   // 2. 위치만 반환
   @Override
-  public Optional<Location> latestLocation(double lat, double lon) {
+  public Optional<Weather> latestWeather(double lat, double lon) {
 
-    Location loc = q.select(w.location)
-        .from(w)
-        .where(w.location.latitude.eq(lat)
-            .and(w.location.longitude.eq(lon)))
-        .orderBy(w.forecastedAt.desc())
+    Weather weather = q.selectFrom(w)
+        .leftJoin(w.locationNames, ln).fetchJoin()    // ← 이름까지 fetch
+        .where(w.location.latitude.between(lat - TOL, lat + TOL)
+            .and(w.location.longitude.between(lon - TOL, lon + TOL)))
+        .orderBy(w.forecastedAt.desc())               // 최신 발표 1건
         .fetchFirst();
 
-    return Optional.ofNullable(loc);
+    return Optional.ofNullable(weather);
   }
 
 	/*@Override
