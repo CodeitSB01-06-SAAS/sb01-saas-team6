@@ -11,6 +11,8 @@ import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +48,7 @@ public class RecommendationService {
     );
 
     /**날씨 데이터
-     * 1. 기온, 바람 , 습도, 날씨
+     * 1. 기온, 바람 , 습도, 날씨, 계절
      *
      * 의상 속성
      * 1. 두께감, 계절,안감 ,따뜻한 정도
@@ -79,25 +81,26 @@ public class RecommendationService {
      *       2)새로운 위치시 즉시호출
      */
 
-//    //gen-ai 클라이언트
-//    Client client = new Client();
-//
-//    long startTime = System.currentTimeMillis();
-//
-//    GenerateContentResponse response =
-//        client.models.generateContent(
-//            "gemini-2.5-flash",
-//            //todo: text를 env에서 관리하기(프롬프트 비공개)
-//            "Explain how AI works in a few words",
-//            null
-//        );
-//
-//    long endTime = System.currentTimeMillis();
-//
-//    System.out.println("response = " + response.text());
-//    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
+    //gen-ai 클라이언트
+    Client client = new Client();
 
-    //todo: 추천의상을 저장을 위한 테이블이 필요함.
+    long startTime = System.currentTimeMillis();
+
+    //todo: 생각 0으로 설정.
+    GenerateContentResponse response =
+        client.models.generateContent(
+            "gemini-2.5-flash",
+            //todo: text를 env에서 관리하기(프롬프트 비공개)
+            "현재 계절은 날씨, 기온, 바람, 습도에 대해 0~4 ",
+            null
+        );
+
+    long endTime = System.currentTimeMillis();
+
+    System.out.println("response = " + response.text());
+    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
+
+    //todo: 추천의상 저장을 위한 테이블이 필요함.
     List<OotdDto> result = new ArrayList<>();
 
     return new RecommendationDto(weatherId, userId, ootdDtoList);
