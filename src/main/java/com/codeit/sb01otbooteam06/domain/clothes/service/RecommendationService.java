@@ -11,11 +11,7 @@ import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
-import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
-import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
-import com.google.genai.Client;
-import com.google.genai.types.GenerateContentResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,36 +43,33 @@ public class RecommendationService {
 
     //현재 로그인한 유저의 아이디를 획득한다.
     UUID userId = authService.getCurrentUserId();
-    System.out.println(userId);
 
     User user = userRepository.findById(userId).orElseThrow(
         () -> new UserNotFoundException(userId)
     );
 
     /**날씨 데이터
-     * 1. 기온
-     * 2. 바람
-     * 3. 날씨
-     * 4. 습도
+     * 1. 기온, 바람 , 습도, 날씨
      *
      * 의상 속성
-     * 1. 두께감
-     * 2. 계절
-     * 3. 안감 
-     * 4. 따뜻한 정도
+     * 1. 두께감, 계절,안감 ,따뜻한 정도
      * */
 
-    //날씨 데이터 가져오기
-    Weather weather = weatherRepository.findById(weatherId)
-        .orElseThrow(() -> new WeatherNotFoundException());
-
-    //날씨 데이터에서 필요한 것 추출
-    // humidity, temperature, windSpeed
-    List<Long> weatherThings = new ArrayList<>();
-    String skyStatus = String.valueOf(weather.getSkyStatus());
+    //TODO날씨 데이터 생기면 열기
+//    //날씨 데이터 가져오기
+//    Weather weather = weatherRepository.findById(weatherId)
+//        .orElseThrow(() -> new WeatherNotFoundException());
+//
+//    //날씨 데이터에서 필요한 것 추출
+//    // humidity, temperature, windSpeed
+//    List<Long> weatherThings = new ArrayList<>();
+//    String skyStatus = String.valueOf(weather.getSkyStatus());
 
     //의상 데이터 가져오기
     List<Clothes> clothesList = clothesRepository.findAllByOwner(user);
+    List<OotdDto> ootdDtoList = clothesList.stream()
+        .map(clothes -> OotdDto.toDto(clothesMapper.toDto(clothes)))
+        .toList();
 
     ///날씨 추천 로직
     /**
@@ -89,32 +82,28 @@ public class RecommendationService {
      *       2)새로운 위치시 즉시호출
      */
 
-    //gen-ai 클라이언트
-    Client client = new Client();
+//    //gen-ai 클라이언트
+//    Client client = new Client();
+//
+//    long startTime = System.currentTimeMillis();
+//
+//    GenerateContentResponse response =
+//        client.models.generateContent(
+//            "gemini-2.5-flash",
+//            //todo: text를 env에서 관리하기(프롬프트 비공개)
+//            "Explain how AI works in a few words",
+//            null
+//        );
+//
+//    long endTime = System.currentTimeMillis();
+//
+//    System.out.println("response = " + response.text());
+//    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
 
-    long startTime = System.currentTimeMillis();
-
-    GenerateContentResponse response =
-        client.models.generateContent(
-            "gemini-2.5-flash",
-            //todo: text를 env에서 관리하기(프롬프트 비공개)
-            "Explain how AI works in a few words",
-            null
-        );
-
-    long endTime = System.currentTimeMillis();
-
-    System.out.println("response = " + response.text());
-    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
-
-    //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
     //todo: 추천의상을 저장을 위한 테이블이 필요함.
     List<OotdDto> result = new ArrayList<>();
-    result.add(makeDummyOotdDto("상의", "TOP"));
-    result.add(makeDummyOotdDto("하의", "BOTTOM"));
-    result.add(makeDummyOotdDto("아우터", "OUTER"));
-    result.add(makeDummyOotdDto("모자", "HAT"));
-    return new RecommendationDto(weatherId, user.getId(), null);
+
+    return new RecommendationDto(weatherId, userId, ootdDtoList);
   }
 
   private List<Integer> weightByAi(List<Integer> weatherThings, String skyStatus) {
