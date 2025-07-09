@@ -114,7 +114,7 @@ public class RecommendationService {
     result.add(makeDummyOotdDto("하의", "BOTTOM"));
     result.add(makeDummyOotdDto("아우터", "OUTER"));
     result.add(makeDummyOotdDto("모자", "HAT"));
-    return new RecommendationDto(weatherId, user.getId(), result);
+    return new RecommendationDto(weatherId, user.getId(), null);
   }
 
   private List<Integer> weightByAi(List<Integer> weatherThings, String skyStatus) {
