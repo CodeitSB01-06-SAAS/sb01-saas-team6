@@ -3,19 +3,25 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.RecommendationDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
+import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
+import com.codeit.sb01otbooteam06.domain.clothes.utils.ClothesUtils;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
 import com.google.genai.Client;
-import com.google.genai.types.GenerateContentResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +40,9 @@ public class RecommendationService {
 
   private final ClothesMapper clothesMapper;
   private final ClothesRepository clothesRepository;
+
+  private final ClothesUtils clothesUtils;
+  private final ClothesAttributeRepository clothesAttributeRepository;
 
   //TODO: 의상 추천 알고리즘
   //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
@@ -64,10 +73,32 @@ public class RecommendationService {
 //    List<Long> weatherThings = new ArrayList<>();
 //    String skyStatus = String.valueOf(weather.getSkyStatus());
 
-    //의상 데이터 가져오기
+    // 1. 의상 리스트 가져오기
     List<Clothes> clothesList = clothesRepository.findAllByOwner(user);
-    List<OotdDto> ootdDtoList = clothesList.stream()
-        .map(clothes -> OotdDto.toDto(clothesMapper.toDto(clothes)))
+
+// 2. 의상 ID 리스트 추출
+    List<UUID> clothesIds = clothesList.stream()
+        .map(Clothes::getId)
+        .toList();
+
+// 3. 의상 속성들 한꺼번에 가져오기 (의상 리스트로)
+    List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothesIn(
+        clothesList);
+
+// 4. 의상 ID별 속성 매핑 (Map<ClothesId, List<ClothesAttribute>>)
+    Map<UUID, List<ClothesAttribute>> attributesByClothesId = clothesAttributes.stream()
+        .collect(Collectors.groupingBy(attr -> attr.getClothes().getId()));
+
+// 5. ClothesDto 리스트 만들기
+    List<ClothesDto> clothesDtoList = clothesList.stream()
+        .map(clothes -> clothesUtils.makeClothesDto(
+            clothes,
+            attributesByClothesId.getOrDefault(clothes.getId(), Collections.emptyList())))
+        .toList();
+
+// 6. OotdDto 리스트 만들기
+    List<OotdDto> ootdDtoList = clothesDtoList.stream()
+        .map(OotdDto::toDto)
         .toList();
 
     ///날씨 추천 로직
@@ -84,21 +115,21 @@ public class RecommendationService {
     //gen-ai 클라이언트
     Client client = new Client();
 
-    long startTime = System.currentTimeMillis();
-
-    //todo: 생각 0으로 설정.
-    GenerateContentResponse response =
-        client.models.generateContent(
-            "gemini-2.5-flash",
-            //todo: text를 env에서 관리하기(프롬프트 비공개)
-            "현재 계절은 날씨, 기온, 바람, 습도에 대해 0~4 ",
-            null
-        );
-
-    long endTime = System.currentTimeMillis();
-
-    System.out.println("response = " + response.text());
-    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
+//    long startTime = System.currentTimeMillis();
+//
+//    //todo: 생각 0으로 설정.
+//    GenerateContentResponse response =
+//        client.models.generateContent(
+//            "gemini-2.5-flash",
+//            //todo: text를 env에서 관리하기(프롬프트 비공개)
+//            "프롬프트 작성",
+//            null
+//        );
+//
+//    long endTime = System.currentTimeMillis();
+//
+//    System.out.println("response = " + response.text());
+//    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
 
     //todo: 추천의상 저장을 위한 테이블이 필요함.
     List<OotdDto> result = new ArrayList<>();
