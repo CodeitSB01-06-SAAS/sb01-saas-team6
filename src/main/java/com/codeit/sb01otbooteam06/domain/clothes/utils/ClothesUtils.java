@@ -19,10 +19,10 @@ public class ClothesUtils {
 
 
   /**
-   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
+   * ClothesDto의 attributes 필드인, List<ClothesAttributeWithDefDto> 를 생성합니다.
    *
    * @param attributes
-   * @returnList<ClothesAttributeWithDefDto>
+   * @return List <ClothesAttributeWithDefDto>
    */
   public List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
       List<ClothesAttribute> attributes) {
