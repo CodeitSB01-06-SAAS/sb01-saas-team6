@@ -46,10 +46,6 @@ CREATE TABLE weathers
     UNIQUE (forecasted_at, forecast_at, grid_x, grid_y)
 );
 
--- 인덱스 추가
-CREATE UNIQUE INDEX IF NOT EXISTS ux_weathers_daily
-    ON weathers (forecasted_at, forecast_at, grid_x, grid_y);
-
 -- forecast_at 단일 컬럼 인덱스 (00:00 조건 필터용)
 CREATE INDEX IF NOT EXISTS ix_weathers_forecast_at
     ON weathers (forecast_at);
@@ -188,9 +184,6 @@ ALTER TABLE notifications
     ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id);
 
 
---------조건
-ALTER TABLE profiles
-    ADD CONSTRAINT fk_profiles_user FOREIGN KEY (id) REFERENCES users (id);
 
 
 
