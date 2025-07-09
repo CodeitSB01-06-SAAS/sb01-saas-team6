@@ -4,9 +4,9 @@ FROM openjdk:17-jdk-slim AS builder
 
 # --- 런타임 필수 패키지 설치 --------------------------
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/* \
-RUN adduser --disabled-password --gecos '' appuser
+    apt-get install -y --no-install-recommends curl=7.74.0-1.3+deb11u15 && \
+    rm -rf /var/lib/apt/lists/* && \
+    adduser --disabled-password --gecos '' appuser
 
 # 권장: non-root 실행
 USER appuser
