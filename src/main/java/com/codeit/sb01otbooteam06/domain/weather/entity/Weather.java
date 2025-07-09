@@ -9,6 +9,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -23,7 +24,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "weathers",
     uniqueConstraints = @UniqueConstraint(
-        columnNames = {"forecasted_at", "forecast_at", "grid_x", "grid_y"}))
+        columnNames = {"forecasted_at", "forecast_at", "grid_x", "grid_y"}),
+    indexes = {
+        @Index(name = "ix_weathers_forecast_at", columnList = "forecast_at"),
+        @Index(name = "ix_weathers_grid", columnList = "grid_x, grid_y")
+    })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Weather extends BaseUpdatableEntity {
 
