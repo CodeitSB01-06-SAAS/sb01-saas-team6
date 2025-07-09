@@ -1,5 +1,6 @@
 
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk-slim AS builder
+RUN adduser --disabled-password --gecos '' appuser
 
 # --- 런타임 필수 패키지 설치 --------------------------
 RUN apt-get update && \
