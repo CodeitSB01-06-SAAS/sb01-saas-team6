@@ -1,14 +1,15 @@
 
 FROM openjdk:17-jdk-slim AS builder
-RUN adduser --disabled-password --gecos '' appuser
 
-# 권장: non-root 실행
-USER appuser
 
 # --- 런타임 필수 패키지 설치 --------------------------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* \
+RUN adduser --disabled-password --gecos '' appuser
+
+# 권장: non-root 실행
+USER appuser
 
 WORKDIR /app
 
