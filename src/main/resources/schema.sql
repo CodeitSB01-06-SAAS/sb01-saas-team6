@@ -12,7 +12,9 @@ DROP TABLE IF EXISTS
     profiles,
     users,
     weather_location_names,
-    weathers
+    weathers,
+    profile_location_names,
+    user_linked_oauth_providers
     CASCADE;
 DROP TYPE IF EXISTS notification_type CASCADE;
 
@@ -23,8 +25,8 @@ CREATE TABLE weathers
     forecast_at               TIMESTAMP        NOT NULL, -- 예보 시각(fcstDate+fcstTime)
     lat                       DOUBLE PRECISION NOT NULL,
     lon                       DOUBLE PRECISION NOT NULL,
-    grid_x                    SMALLINT         NOT NULL,
-    grid_y                    SMALLINT         NOT NULL,
+    grid_x                    INTEGER         NOT NULL,
+    grid_y                    INTEGER         NOT NULL,
     sky_status                VARCHAR(15)      NOT NULL, -- CLEAR / MOSTLY_CLOUDY / CLOUDY
     precipitation_type        VARCHAR(15)      NOT NULL, -- RAIN / SNOW …
     temperature_current       DOUBLE PRECISION,
@@ -37,7 +39,7 @@ CREATE TABLE weathers
     snow_amount               DOUBLE PRECISION,
     lightning                 DOUBLE PRECISION,
     wind_speed                DOUBLE PRECISION,
-    wind_level                SMALLINT,
+    wind_level                INTEGER,
     wind_direction            DOUBLE PRECISION,
     wind_u                    DOUBLE PRECISION,
     wind_v                    DOUBLE PRECISION,
@@ -175,12 +177,6 @@ ALTER TABLE notifications
     ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id);
 
 
---------조건
-ALTER TABLE profiles
-    ADD CONSTRAINT fk_profiles_user FOREIGN KEY (id) REFERENCES users (id);
-
-
-
 CREATE TABLE clothes
 (
     id         UUID PRIMARY KEY,
@@ -264,3 +260,21 @@ CREATE TABLE clothes_feeds
     CONSTRAINT fk_clothes_feeds_feed FOREIGN KEY (feed_id) REFERENCES feeds(id) ON DELETE CASCADE,
     CONSTRAINT uq_clothes_feed UNIQUE (clothes_id, feed_id) -- 중복 방지
 );
+
+
+CREATE TABLE profile_location_names
+(
+    profile_id UUID NOT NULL,
+    location_name VARCHAR(255),
+    FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE user_linked_oauth_providers
+(
+    user_id UUID NOT NULL,
+    provider VARCHAR(255),
+    PRIMARY KEY (user_id, provider), --주키 설정
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+)
+
