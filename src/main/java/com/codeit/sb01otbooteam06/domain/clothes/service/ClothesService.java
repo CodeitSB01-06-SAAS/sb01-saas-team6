@@ -2,7 +2,6 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
@@ -12,6 +11,7 @@ import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesAttributeWithDefD
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
+import com.codeit.sb01otbooteam06.domain.clothes.utils.ClothesUtils;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
@@ -36,6 +36,8 @@ public class ClothesService {
 
   private final ClothesMapper clothesMapper;
   private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
+
+  private final ClothesUtils clothesUtils;
 
   //S3 이미지 저장 디렉토리 네임
   private final String directory = "Clothes";
@@ -73,45 +75,7 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
         clothesCreateRequest.attributes());
 
-    return makeClothesDto(clothes, clothesAttributes);
-  }
-
-
-  /**
-   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
-   *
-   * @param attributes
-   * @returnList<ClothesAttributeWithDefDto>
-   */
-  private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
-      List<ClothesAttribute> attributes) {
-    if (attributes == null) {
-      return List.of();
-    }
-    return attributes.stream()
-        .map(clothesAttributeWithDefDtoMapper::toDto)
-        .toList();
-  }
-
-  /**
-   * ClothesDto를 만듭니다
-   *
-   * @param clothes
-   * @param clothesAttributes
-   * @return ClothesDto
-   */
-  private ClothesDto makeClothesDto(Clothes clothes, List<ClothesAttribute> clothesAttributes) {
-
-    ClothesDto clothesDto = clothesMapper.toDto(clothes);
-    return new ClothesDto(
-        clothesDto.id(),
-        clothesDto.ownerId(),
-        clothesDto.name(),
-        clothesDto.imageUrl(),
-        clothesDto.type(),
-        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
-    );
-
+    return clothesUtils.makeClothesDto(clothes, clothesAttributes);
   }
 
 
@@ -151,7 +115,7 @@ public class ClothesService {
       //의상에 대한 속성
       List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothes(clothes);
       //결과리스트에 clothesdto추가
-      clothesDtos.add(makeClothesDto(clothes, clothesAttributes)
+      clothesDtos.add(clothesUtils.makeClothesDto(clothes, clothesAttributes)
       );
     }
     ///
@@ -215,7 +179,7 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes =
         clothesAttributeService.update(clothes, clothesUpdateRequest.attributes());
 
-    return makeClothesDto(clothes, clothesAttributes);
+    return clothesUtils.makeClothesDto(clothes, clothesAttributes);
 
 
   }
