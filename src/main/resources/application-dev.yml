@@ -5,11 +5,11 @@ spring:
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
 
-    batch:
-      jdbc:
-        initialize-schema: always
-      job:
-        enabled: false
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
 
   datasource:
     url: jdbc:postgresql://localhost:5432/Otboo
