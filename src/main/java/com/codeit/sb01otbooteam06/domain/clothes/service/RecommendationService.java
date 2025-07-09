@@ -1,6 +1,7 @@
 package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 
+import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
@@ -22,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RecommendationService {
 
+  private final AuthService authService;
+
   private final ClothesService clothesService;
 
   //todo: 서비스? 웨더 확인해보고 추후 변경
@@ -36,21 +39,23 @@ public class RecommendationService {
   @Transactional
   public RecommendationDto create(UUID weatherId) {
 
-    //todo: 유저 아이디 획득
-    User user = userRepository.findByEmail("admin@example.com")
-        .orElseThrow(() -> new NoSuchElementException());
+    UUID userId = authService.getCurrentUserId();
+
+//    //todo: 유저 아이디 획득
+//    User user = userRepository.findByEmail("admin@example.com")
+//        .orElseThrow(() -> new NoSuchElementException());
 
     //날씨
 
     // 온도
-
-    //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
-    List<OotdDto> result = new ArrayList<>();
-    result.add(makeDummyOotdDto("상의", "TOP"));
-    result.add(makeDummyOotdDto("하의", "BOTTOM"));
-    result.add(makeDummyOotdDto("아우터", "OUTER"));
-    result.add(makeDummyOotdDto("모자", "HAT"));
-    return new RecommendationDto(weatherId, user.getId(), result);
+//
+//    //todo: 시간이 소요될 것으로 예상되어 우선 임시 데이터 던지게하기
+//    List<OotdDto> result = new ArrayList<>();
+//    result.add(makeDummyOotdDto("상의", "TOP"));
+//    result.add(makeDummyOotdDto("하의", "BOTTOM"));
+//    result.add(makeDummyOotdDto("아우터", "OUTER"));
+//    result.add(makeDummyOotdDto("모자", "HAT"));
+    return new RecommendationDto(weatherId, userId, List.of());
   }
 
 

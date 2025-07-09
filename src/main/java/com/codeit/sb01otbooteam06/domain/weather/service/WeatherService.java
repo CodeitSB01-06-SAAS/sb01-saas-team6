@@ -110,52 +110,54 @@ public class WeatherService {
             return;
         }
 
-        /* 3) 날짜별 그룹 */
-        Map<LocalDate, List<KmaVillageItem>> byDate = dto.items().stream()
-            .collect(Collectors.groupingBy(i ->
-                LocalDate.parse(i.fcstDate(), DateTimeFormatter.BASIC_ISO_DATE)));
+        /* 3) 발표‧예보 시각 계산 */
+        String baseDate = dto.items().get(0).baseDate();   // yyyymmdd
+        String baseTime = dto.items().get(0).baseTime();   // HHmm(예: 0500)
+        ZoneId  KST      = ZoneId.of("Asia/Seoul");
 
-        String baseDate = dto.items().get(0).baseDate();   // 발표일자
-        String baseTime = dto.items().get(0).baseTime();   // 발표시각(HHmm)
-        ZoneId kst = ZoneId.of("Asia/Seoul");
-        String time4 = String.format("%04d", Integer.parseInt(baseTime));
         Instant baseInst = LocalDateTime
-            .parse(baseDate + time4, DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
-            .atZone(kst).toInstant();
+            .parse(baseDate + String.format("%04d", Integer.parseInt(baseTime)),
+                DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
+            .atZone(KST).toInstant();
 
-        /* 4) 날짜별 집계 → Weather 저장 */
-        byDate.forEach((fcstDate, list) -> {
+        /* 4) fcstDate(하루 단위)로 그룹핑 → 집계 → UPSERT */
+        dto.items().stream()
+            .collect(Collectors.groupingBy(i ->
+                LocalDate.parse(i.fcstDate(), DateTimeFormatter.BASIC_ISO_DATE)))
+            .forEach((fcstDate, list) -> {
 
-            DailyAggregator.DailyAgg a = DailyAggregator.aggregate(list);
+                /* 4-1) 일별 통계값 */
+                DailyAggregator.DailyAgg a = DailyAggregator.aggregate(list);
 
-            ForecastKeyDaily key = ForecastKeyDaily.from(baseDate, baseTime, fcstDate)
-                .withGrid(grid.gridX(), grid.gridY());
-            Instant fcstInst = fcstDate
-                .atStartOfDay()
-                .atZone(kst)
-                .toInstant();
+                Instant fcstInst = fcstDate.atStartOfDay(KST).toInstant();   // 00:00 KST
 
-            Weather w = weatherRepository.findById(key.toUuid())
-                .orElseGet(() -> Weather.from(
-                    baseInst,
-                    fcstInst,
-                    Location.from(lat, lon, grid.gridX(), grid.gridY())));
+                /* 4-2) 자연키로 먼저 찾아본다 */
+                Weather w = weatherRepository
+                    .findByForecastedAtAndForecastAtAndLocation_XAndLocation_Y(
+                        baseInst, fcstInst, grid.gridX(), grid.gridY())
+                    .orElseGet(() -> Weather.from(
+                        baseInst, fcstInst,
+                        Location.from(lat, lon, grid.gridX(), grid.gridY())));
 
-            w.applyMetrics(
-                a.sky(), a.pty(),
-                Temperature.from(a.tmpAvg(), a.tmpMin(), a.tmpMax()),
-                Precipitation.from(a.pcpSum(), null, a.popMax()),
-                Wind.from(a.wsdAvg(), null, null, null, null),
-                a.rehAvg(),
-                null,
-                null);
+                /* 4-3) 메트릭 갱신 */
+                w.applyMetrics(
+                    a.sky(), a.pty(),
+                    Temperature.from(a.tmpAvg(), a.tmpMin(), a.tmpMax()),
+                    Precipitation.from(a.pcpSum(), null, a.popMax()),
+                    Wind.from(a.wsdAvg(), null, null, null, null),
+                    a.rehAvg(),
+                    null,
+                    null);
 
-            if (w.getLocationNames().isEmpty()) {
-                kakaoLocalClient.coordToRegion(lat, lon).forEach(w::addLocationName);
-            }
+                /* 4-4) 행정동 명칭은 한 번만 저장 */
+                if (w.getLocationNames().isEmpty()) {
+                    kakaoLocalClient.coordToRegion(lat, lon)
+                        .forEach(w::addLocationName);
+                }
 
-            weatherRepository.save(w);
-        });
+                /* 4-5) INSERT 또는 UPDATE */
+                weatherRepository.save(w);
+            });
     }
 
     /* private  */
