@@ -24,19 +24,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // 전체 열어둠
-                )
-                .build();
+            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()  // 전체 열어둠
+            )
+
+            //추가
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
     /**
-     * 비밀번호 암호화를 위한 PasswordEncoder 빈 등록
-     */
-    @Bean
+
+     비밀번호 암호화를 위한 PasswordEncoder 빈 등록*/@Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        return new BCryptPasswordEncoder();}
 }

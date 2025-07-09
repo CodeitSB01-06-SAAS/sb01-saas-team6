@@ -16,10 +16,16 @@ public record ForecastKey(
 
     /* --------- 정적 팩토리 --------- */
     public static ForecastKey of(KmaVillageItem i) {      // ← public
-        return new ForecastKey(
-            toInstant(i.baseDate(), i.baseTime()),
-            toInstant(i.fcstDate(), i.fcstTime()),
-            i.nx(), i.ny());
+        // 발표시각(05:00) → 그대로 Instant
+        Instant base = toInstant(i.baseDate(), i.baseTime());   // 05:00 발표
+
+        // 예보 날짜만 받아 00:00 KST 로 고정
+        LocalDate d = LocalDate.parse(i.fcstDate(), DateTimeFormatter.BASIC_ISO_DATE);
+        Instant fcst00 = ZonedDateTime
+            .of(d, LocalTime.MIDNIGHT, ZoneId.of("Asia/Seoul"))
+            .toInstant();                                    // ★ 00:00
+
+        return new ForecastKey(base, fcst00, i.nx(), i.ny());
     }
 
     /* --------- UUID 변환 --------- */
