@@ -183,7 +183,7 @@ CREATE TABLE clothes
     owner_id   UUID        NOT NULL,
     name       VARCHAR(40) NOT NULL,
     type       VARCHAR(20) NOT NULL,
-    image_url  TEXT        NOT NULL,
+    image_url  TEXT        NULL,
     created_at TIMESTAMP   NOT NULL,
     updated_at TIMESTAMP NULL
 );
