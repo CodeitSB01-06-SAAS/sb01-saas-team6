@@ -100,10 +100,6 @@ public class FeedServiceImpl implements FeedService {
     if (!feedRepository.existsByIdAndUserId(feedId, userId)) {
       throw new OtbooException(ErrorCode.UNAUTHORIZED_FEED_ACCESS);
     }
-
-    if (!feedRepository.existsById(feedId)) {
-      throw new OtbooException(ErrorCode.FEED_NOT_FOUND);
-    }
     feedRepository.deleteById(feedId);
   }
 
