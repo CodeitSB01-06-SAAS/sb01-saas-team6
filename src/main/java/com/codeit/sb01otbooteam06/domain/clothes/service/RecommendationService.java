@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,9 @@ public class RecommendationService {
 
   private final ClothesUtils clothesUtils;
   private final ClothesAttributeRepository clothesAttributeRepository;
+
+  @Value("${gemini.prompt}")
+  private String secretPrompt;
 
   //TODO: 의상 추천 알고리즘
   //날씨 데이터, 사용자가 등록한 의상, 프로필 정보를 활용하여 의상을 추천
@@ -162,11 +166,10 @@ public class RecommendationService {
     long startTime = System.currentTimeMillis();
 
     //프롬프트
-    //todo: 프롬프트를 env에서 관리하기(프롬프트 비공개)
     String prompt = String.format(
-        "현재 %d 월이고, 구름 상태는(숫자가 클수록 흐림, 최대 4) %d, 온도는 %.1f, 습도는 %.1f, 풍속은 %.1f, 사람의 온도 민감도는 (0: 추위 많이 탐 ~ 5: 더위 많이 탐) %d 야. 이때 의상에 대한 두께감(0~3, 두꺼움~얇음), 계절(0~3, 봄~겨울), 안감(0~2, 없음~기모), 따뜻한 정도(0~1, 따뜻함~시원함)를 생각해서 콤마로 구분해서 정수숫자만 출력해",
-        12, 1, weatherData[2], weatherData[3], weatherData[4],
-        3);
+        secretPrompt,
+        (int) weatherData[0], (int) weatherData[1], weatherData[2], weatherData[3], weatherData[4],
+        (int) weatherData[5]);
 
     GenerateContentResponse response =
         client.models.generateContent(
@@ -185,9 +188,14 @@ public class RecommendationService {
     System.out.println("response = " + response.text());
     System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
 
-    int[] weight = new int[4];
+//    //반환값 변환
+//    String[] parts = response.text().split(",");
+//    int[] weight = new int[parts.length];
+//    for (int i = 0; i < parts.length; i++) {
+//      weight[i] = Integer.parseInt(parts[i]);
+//    }
 
-    return weight;
+    return null;
   }
 
 
