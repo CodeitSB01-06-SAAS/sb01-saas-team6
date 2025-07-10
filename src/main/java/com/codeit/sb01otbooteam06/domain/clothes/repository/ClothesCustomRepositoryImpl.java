@@ -2,6 +2,7 @@ package com.codeit.sb01otbooteam06.domain.clothes.repository;
 
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.QClothes;
+import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -82,5 +83,17 @@ public class ClothesCustomRepositoryImpl implements ClothesCustomRepository {
         .where(builder)
         .fetchOne());
 
+  }
+
+  /**
+   * 의상 추천에서, 속성 값에 따른 유저의 의상을 반환한다.
+   *
+   * @param user
+   * @param weightData
+   * @return
+   */
+  @Override
+  public List<Clothes> findAllByOwnerWithValue(User user, int[] weightData) {
+    return List.of();
   }
 }
