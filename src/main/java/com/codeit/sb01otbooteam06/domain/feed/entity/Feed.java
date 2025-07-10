@@ -1,6 +1,7 @@
 package com.codeit.sb01otbooteam06.domain.feed.entity;
 
 import com.codeit.sb01otbooteam06.domain.base.BaseUpdatableEntity;
+import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import jakarta.persistence.CascadeType;
@@ -34,8 +35,8 @@ public class Feed extends BaseUpdatableEntity {
   @Column(nullable = false)
   private int commentCount = 0;
 
-  @Transient
-  private boolean likedByMe;
+  @Column(nullable = false)
+  private boolean likedByMe = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -87,6 +88,14 @@ public class Feed extends BaseUpdatableEntity {
 
   public void unlike() {
     this.likeCount--;
+  }
+
+  public void setClothesFeeds(List<Clothes> clothesList) {
+    this.clothesFeeds.clear();
+    List<ClothesFeed> associations = clothesList.stream()
+        .map(clothes -> new ClothesFeed(clothes, this))
+        .toList();
+    this.clothesFeeds.addAll(associations);
   }
 
 }

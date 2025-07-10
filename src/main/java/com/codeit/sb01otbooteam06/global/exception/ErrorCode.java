@@ -28,7 +28,8 @@ public enum ErrorCode {
   PROFILE_NOT_FOUND("프로필을 찾을 수 없슴니다."),
 
   //Feed
-  FEED_NOT_FOUND("피드를 찾을 수 없습니다.");
+  FEED_NOT_FOUND("피드를 찾을 수 없습니다."),
+  UNAUTHORIZED_FEED_ACCESS("해당 피드에 대한 접근 권한이 없습니다.");
 
 
 

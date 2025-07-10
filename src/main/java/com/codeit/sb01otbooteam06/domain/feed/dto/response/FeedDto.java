@@ -4,6 +4,7 @@ import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.OotdDto;
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.feed.entity.ClothesFeed;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
+import com.codeit.sb01otbooteam06.domain.profile.entity.Profile;
 import com.codeit.sb01otbooteam06.domain.user.dto.AuthorDto;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.weather.dto.WeatherDto;
@@ -50,11 +51,11 @@ public class FeedDto {
 
   public static FeedDto fromEntity(Feed feed, ClothesMapper clothesMapper, WeatherDtoMapper weatherMapper) {
     User author = feed.getUser();
-    //Profile profile = user.getProfile()
+    Profile profile = author.getProfile();
     AuthorDto authorDto = AuthorDto.builder()
         .userId(author.getId())
         .name(author.getName())
-        //.profileImageUrl(profile.getProfileImageUrl())
+        .profileImageUrl(profile != null ? profile.getProfileImageUrl() : null)
         .build();
 
     Weather weather = feed.getWeather();

@@ -1,9 +1,9 @@
 package com.codeit.sb01otbooteam06.domain.feed.service.impl;
 
+import com.codeit.sb01otbooteam06.domain.auth.service.AuthService;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.CommentCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.CommentDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.CommentDtoCursorResponse;
-import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Comment;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
 import com.codeit.sb01otbooteam06.domain.feed.repository.CommentRepository;
@@ -28,19 +28,19 @@ public class CommentServiceImpl implements CommentService {
   private final CommentRepository commentRepository;
   private final FeedRepository feedRepository;
   private final UserRepository userRepository;
+  private final AuthService authService;
 
   @Transactional
   @Override
-  public CommentDto createComment(UUID feedId ,CommentCreateRequest request) {
-    //todo : 나중에 인증 관련에서 개발 할때 리팩토링.
-    User author = userRepository.findById(request.getAuthorId())
+  public CommentDto createComment(UUID feedId, CommentCreateRequest request) {
+
+    UUID authorId = authService.getCurrentUserId();
+    User author = userRepository.findById(authorId)
         .orElseThrow(() -> new OtbooException(ErrorCode.USER_NOT_FOUND));
     Feed feed = feedRepository.findById(feedId)
         .orElseThrow(() -> new OtbooException(ErrorCode.FEED_NOT_FOUND));
 
     Comment comment = Comment.of(request.getContent(), author.getName(), author, feed);
-
-    // todo : 피드의 comment 리스트에 댓글 엔티티 추가.? 나중에 확인
 
     // 댓글을 레포지토리에 저장안한 이유? cascade = ALL 설정, 피드가 저장 되면 같이 저장.
     feed.addComment(comment);
