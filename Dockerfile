@@ -17,12 +17,12 @@ RUN chmod +x ./gradlew
 
 RUN ./gradlew dependencies --stacktrace --info
 
-# 권장: non-root 실행
-USER appuser
-
 COPY src ./src
 
 RUN ./gradlew build -x test --no-daemon
+
+# 권장: non-root 실행
+USER appuser
 
 # 2. Runtime stage
 FROM openjdk:17-jdk-slim
