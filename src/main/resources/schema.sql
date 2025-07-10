@@ -45,7 +45,7 @@ CREATE TABLE weathers
     wind_v                    DOUBLE PRECISION,
     created_at                TIMESTAMP,
     updated_at                TIMESTAMP,
-    UNIQUE (forecasted_at, forecast_at, grid_x, grid_y)
+    UNIQUE (forecast_at, grid_x, grid_y)
 );
 
 -- forecast_at 단일 컬럼 인덱스 (00:00 조건 필터용)
@@ -61,9 +61,12 @@ CREATE INDEX IF NOT EXISTS ix_weathers_grid
 CREATE TABLE weather_location_names
 (
     id            UUID PRIMARY KEY,
-    weather_id    UUID         NOT NULL REFERENCES weathers (id) ON DELETE CASCADE,
+    weather_id    UUID         NOT NULL
+        REFERENCES weathers (id) ON DELETE CASCADE,
     location_name VARCHAR(100) NOT NULL,
-    created_at    TIMESTAMP
+    created_at    TIMESTAMP,
+    /* ── 동일 Weather-ID 내에서 중복 방지 ── */
+    UNIQUE (weather_id, location_name)
 );
 
 

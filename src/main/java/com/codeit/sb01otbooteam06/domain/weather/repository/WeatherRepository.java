@@ -11,5 +11,8 @@ public interface WeatherRepository extends JpaRepository<Weather, UUID>, Weather
     /* 자연키 조회 */
     Optional<Weather> findByForecastedAtAndForecastAtAndLocation_XAndLocation_Y(
         Instant forecastedAt, Instant forecastAt, int x, int y);
+
+    Optional<Weather> findByForecastAtAndLocation_XAndLocation_Y(
+        Instant forecastAt, int gridX, int gridY);
 }
 
