@@ -10,10 +10,13 @@ import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDtoCursorResponse
 import com.codeit.sb01otbooteam06.domain.feed.service.CommentService;
 import com.codeit.sb01otbooteam06.domain.feed.service.FeedLikeService;
 import com.codeit.sb01otbooteam06.domain.feed.service.FeedService;
+import com.codeit.sb01otbooteam06.domain.weather.entity.PrecipitationType;
+import com.codeit.sb01otbooteam06.domain.weather.entity.SkyStatus;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/feeds")
 @RequiredArgsConstructor
+@Slf4j
 public class FeedController {
 
   private final FeedService feedService;
@@ -49,10 +53,20 @@ public class FeedController {
       @RequestParam(name = "limit") int limit,
       @RequestParam(name = "sortBy") String sortBy,
       @RequestParam(name = "sortDirection") String sortDirection,
-      @RequestParam(name = "keywordLike", required = false) String keywordLike,
-      @RequestParam(name = "skyStatusEqual", required = false) String skyStatusEqual,
-      @RequestParam(name = "precipitationTypeEqual", required = false) String precipitationTypeEqual,
+      @RequestParam(name = "keywordLike", required = false) String keywordLikeRaw,
+      @RequestParam(name = "skyStatusEqual", required = false) SkyStatus skyStatusEqual,
+      @RequestParam(name = "precipitationTypeEqual", required = false) PrecipitationType precipitationTypeEqual,
       @RequestParam(name = "authorIdEqual", required = false) UUID authorIdEqual) {
+
+
+    String keywordLike = (keywordLikeRaw != null && !keywordLikeRaw.trim().isEmpty())
+        ? keywordLikeRaw
+        : null;
+
+
+    log.info(" sortedBy: {}, sortDirection: {}, keywordLike: {}", sortBy, sortDirection, keywordLike);
+
+
 
     Instant cursorCreatedAt = null;
     Long likeCursor = null;

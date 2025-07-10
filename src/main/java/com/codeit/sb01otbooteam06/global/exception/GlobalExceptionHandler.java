@@ -64,6 +64,7 @@ public class GlobalExceptionHandler {
            ATTRIBUTEDEF_NOT_FOUND,
            PROFILE_NOT_FOUND,
            FEED_NOT_FOUND,
+           UNAUTHORIZED_FEED_ACCESS,
            WEATHER_NOT_FOUND-> HttpStatus.BAD_REQUEST;
 
 
