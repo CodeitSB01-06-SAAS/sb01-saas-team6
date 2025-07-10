@@ -35,8 +35,8 @@ public class Feed extends BaseUpdatableEntity {
   @Column(nullable = false)
   private int commentCount = 0;
 
-  @Transient
-  private boolean likedByMe;
+  @Column(nullable = false)
+  private boolean likedByMe = false;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
