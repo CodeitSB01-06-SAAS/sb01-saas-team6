@@ -8,12 +8,14 @@ import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDto;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedCreateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.request.FeedUpdateRequest;
 import com.codeit.sb01otbooteam06.domain.feed.dto.response.FeedDtoCursorResponse;
-import com.codeit.sb01otbooteam06.domain.feed.entity.ClothesFeed;
 import com.codeit.sb01otbooteam06.domain.feed.entity.Feed;
 import com.codeit.sb01otbooteam06.domain.feed.repository.FeedRepository;
+import com.codeit.sb01otbooteam06.domain.feed.repository.FeedQueryRepository;
 import com.codeit.sb01otbooteam06.domain.feed.service.FeedService;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
+import com.codeit.sb01otbooteam06.domain.weather.entity.PrecipitationType;
+import com.codeit.sb01otbooteam06.domain.weather.entity.SkyStatus;
 import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import com.codeit.sb01otbooteam06.domain.weather.mapper.WeatherDtoMapper;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
@@ -23,7 +25,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
+  private final FeedQueryRepository feedQueryRepository;
   private final FeedRepository feedRepository;
   private final UserRepository userRepository;
   private final WeatherRepository weatherRepository;
@@ -106,35 +111,41 @@ public class FeedServiceImpl implements FeedService {
 
   @Transactional(readOnly = true)
   @Override
-  public FeedDtoCursorResponse getFeedsByCursor(String keyword, String skyStatus, String precipitationType,
+  public FeedDtoCursorResponse getFeedsByCursor(String keyword, SkyStatus skyStatus, PrecipitationType precipitationType,
       Instant cursorCreatedAt, UUID cursorId, Long cursorLikeCount, int size, String sortBy) {
 
-    PageRequest pageReq = PageRequest.of(0, size);
-    List<Feed> feeds = "likeCount".equalsIgnoreCase(sortBy)
-        ? feedRepository.findFeedsByLikeCountCursor(
-        keyword, skyStatus, precipitationType, cursorLikeCount, cursorId, pageReq
-    )
-        : feedRepository.findFeedsByCreatedAtCursor(
-            keyword, skyStatus, precipitationType, cursorCreatedAt, cursorId, pageReq
-        );
+    keyword = (keyword == null || keyword.isBlank()) ? null : keyword;
+    PageRequest pageReq = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, sortBy));
 
-    List<FeedDto> data = feeds.stream()
-        .map(feed -> FeedDto.fromEntity(feed, clothesMapper,weatherDtoMapper))
+    // 커서 값 설정 (정렬 기준에 따라)
+    Object cursorValue = "likeCount".equalsIgnoreCase(sortBy) ? cursorLikeCount : cursorCreatedAt;
+
+    Page<Feed> resultPage = feedQueryRepository.findFeedsByCursorAndSort(
+        keyword,
+        skyStatus,
+        precipitationType,
+        cursorValue,
+        cursorId,
+        pageReq
+    );
+
+    List<FeedDto> data = resultPage.getContent().stream()
+        .map(feed -> FeedDto.fromEntity(feed, clothesMapper, weatherDtoMapper))
         .toList();
 
-    boolean hasNext = data.size() == size;
+    boolean hasNext = resultPage.hasNext(); // 정확한 hasNext 판단
     String nextCursor = null;
     UUID nextIdAfter = null;
 
-    if(hasNext) {
-      Feed last = feeds.get(feeds.size() - 1);
+    if (hasNext && !data.isEmpty()) {
+      Feed last = resultPage.getContent().get(data.size() - 1);
       nextIdAfter = last.getId();
       nextCursor = "likeCount".equalsIgnoreCase(sortBy)
           ? String.valueOf(last.getLikeCount())
           : last.getCreatedAt().toString();
     }
 
-    long totalCount = feedRepository.countByFilters(keyword, skyStatus, precipitationType);
+    long totalCount = feedQueryRepository.countByFilters(keyword, skyStatus, precipitationType);
 
     return new FeedDtoCursorResponse(
         data,
