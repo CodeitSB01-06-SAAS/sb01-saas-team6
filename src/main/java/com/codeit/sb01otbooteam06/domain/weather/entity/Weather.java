@@ -22,13 +22,11 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "weathers",
+@Table(
+    name = "weathers",
     uniqueConstraints = @UniqueConstraint(
-        columnNames = {"forecasted_at", "forecast_at", "grid_x", "grid_y"}),
-    indexes = {
-        @Index(name = "ix_weathers_forecast_at", columnList = "forecast_at"),
-        @Index(name = "ix_weathers_grid", columnList = "grid_x, grid_y")
-    })
+        columnNames = {"forecast_at", "grid_x", "grid_y"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Weather extends BaseUpdatableEntity {
 
@@ -96,7 +94,14 @@ public class Weather extends BaseUpdatableEntity {
     public void addLocationName(String name) {
         locationNames.add(WeatherLocationName.from(this, name));
     }
-
+    /**
+     * 더 최신 발표 시각이 들어오면 교체합니다.
+     */
+    public void refreshBaseIfNewer(Instant newerBase) {
+        if (newerBase.isAfter(this.forecastedAt)) {
+            this.forecastedAt = newerBase;
+        }
+    }
     public void applyMetrics(SkyStatus skyStatus,
         PrecipitationType ptyType,
         Temperature temp,
