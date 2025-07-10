@@ -9,8 +9,9 @@ public record OotdDto(
     String name,
     String imageUrl,
     String type,
-    List<ClothesAttributeWithDefDto> clothesAttributeWithDefDtos
+    List<ClothesAttributeWithDefDto> attributes
 ) {
+
   public static OotdDto toDto(ClothesDto clothesDto) {
     return new OotdDto(
         clothesDto.id(),

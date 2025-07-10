@@ -40,6 +40,25 @@ VALUES ('6e54fc4a-f8f0-478d-a54e-ebe573316061', '테스트유저', 'OTHER', '202
         NULL, 3, NULL,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+------------------------------------ 의상
+INSERT INTO clothes (id, owner_id, name, type, image_url, created_at, updated_at)
+VALUES
+    --hjhj 유저 의상
+    ('e68bd02c-347b-4c9b-8243-353e8e7ae959', '77777777-7777-7777-7777-777777777777', '상의', 'TOP', null,  '2025-07-09 07:43:36.588879', '2025-07-09 07:43:36.588879'
+    );
+
+------------------------------ 의상 속성 중간테이블
+INSERT INTO clothes_attributes (id, clothes_id, attribute_id, value, created_at, updated_at)
+
+VALUES
+    --hjhj 유저의 '상의' 의상 속성 중간 정보
+    ('855c08b1-af6d-488e-aff0-d0a624fa0b66', 'e68bd02c-347b-4c9b-8243-353e8e7ae959', '45723d92-6654-4976-8034-0b34a0a2ccf7', '여름','2025-07-09 07:43:36.588879', '2025-07-09 07:43:36.588879'
+    ),
+    ('4e6c22a7-4bcb-4d63-b5cd-fe067fce2344', 'e68bd02c-347b-4c9b-8243-353e8e7ae959', '55723d92-6654-4976-8034-0b34a0a2ccf7', '얇음','2025-07-09 07:43:36.588879', '2025-07-09 07:43:36.588879'
+    );
+
+
+
 /* ---------- profile_location_names 더미 ---------- */
 INSERT INTO profile_location_names (profile_id, location_name)
 VALUES ('6e54fc4a-f8f0-478d-a54e-ebe573316061', '경기도'),

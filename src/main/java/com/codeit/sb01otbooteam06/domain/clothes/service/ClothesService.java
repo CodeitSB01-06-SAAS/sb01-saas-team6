@@ -2,7 +2,6 @@ package com.codeit.sb01otbooteam06.domain.clothes.service;
 
 import com.codeit.sb01otbooteam06.domain.clothes.entity.Clothes;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.ClothesAttribute;
-import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesAttributeWithDefDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesCreateRequest;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesDto;
 import com.codeit.sb01otbooteam06.domain.clothes.entity.dto.ClothesUpdateRequest;
@@ -12,11 +11,12 @@ import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesAttributeWithDefD
 import com.codeit.sb01otbooteam06.domain.clothes.mapper.ClothesMapper;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesAttributeRepository;
 import com.codeit.sb01otbooteam06.domain.clothes.repository.ClothesRepository;
+import com.codeit.sb01otbooteam06.domain.clothes.utils.ClothesUtils;
 import com.codeit.sb01otbooteam06.domain.user.entity.User;
+import com.codeit.sb01otbooteam06.domain.user.exception.UserNotFoundException;
 import com.codeit.sb01otbooteam06.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +32,12 @@ public class ClothesService {
   private final ClothesRepository clothesRepository;
   private final UserRepository userRepository;
 
-  private final AttributeDefService attributeDefService;
   private final ClothesAttributeService clothesAttributeService;
 
   private final ClothesMapper clothesMapper;
   private final ClothesAttributeWithDefDtoMapper clothesAttributeWithDefDtoMapper;
+
+  private final ClothesUtils clothesUtils;
 
   //S3 이미지 저장 디렉토리 네임
   private final String directory = "Clothes";
@@ -53,12 +54,9 @@ public class ClothesService {
   @Transactional
   public ClothesDto create(ClothesCreateRequest clothesCreateRequest, MultipartFile clothesImage) {
 
-//    //TODO: User 찾기, 예외처리,
-//    User owner = userRepository.findById(clothesCreateRequset.ownerId()).orElseThrow();
-
-    /// TODO: 임시: 현재 의상을 ownerId로 찾지않고 admin 유저에 등록 중
-    User owner = userRepository.findByEmail("admin@example.com")
-        .orElseThrow(() -> new NoSuchElementException());
+    //유저 찾기
+    User owner = userRepository.findById(clothesCreateRequest.ownerId())
+        .orElseThrow(() -> new UserNotFoundException(clothesCreateRequest.ownerId()));
 
     //TODO: S3 업로드 로직 필요
     String imageUrl = "";
@@ -77,45 +75,7 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes = clothesAttributeService.create(clothes,
         clothesCreateRequest.attributes());
 
-    return makeClothesDto(clothes, clothesAttributes);
-  }
-
-
-  /**
-   * ClothesDto의 요소 attributes (List<ClothesAttributeWithDefDto> dto 를 생성합니다.
-   *
-   * @param attributes
-   * @returnList<ClothesAttributeWithDefDto>
-   */
-  private List<ClothesAttributeWithDefDto> makeClothesAttributeWithDefDtos(
-      List<ClothesAttribute> attributes) {
-    if (attributes == null) {
-      return List.of();
-    }
-    return attributes.stream()
-        .map(clothesAttributeWithDefDtoMapper::toDto)
-        .toList();
-  }
-
-  /**
-   * ClothesDto를 만듭니다
-   *
-   * @param clothes
-   * @param clothesAttributes
-   * @return ClothesDto
-   */
-  private ClothesDto makeClothesDto(Clothes clothes, List<ClothesAttribute> clothesAttributes) {
-
-    ClothesDto clothesDto = clothesMapper.toDto(clothes);
-    return new ClothesDto(
-        clothesDto.id(),
-        clothesDto.ownerId(),
-        clothesDto.name(),
-        clothesDto.imageUrl(),
-        clothesDto.type(),
-        makeClothesAttributeWithDefDtos(clothesAttributes) // attribute
-    );
-
+    return clothesUtils.makeClothesDto(clothes, clothesAttributes);
   }
 
 
@@ -155,7 +115,7 @@ public class ClothesService {
       //의상에 대한 속성
       List<ClothesAttribute> clothesAttributes = clothesAttributeRepository.findByClothes(clothes);
       //결과리스트에 clothesdto추가
-      clothesDtos.add(makeClothesDto(clothes, clothesAttributes)
+      clothesDtos.add(clothesUtils.makeClothesDto(clothes, clothesAttributes)
       );
     }
     ///
@@ -219,7 +179,7 @@ public class ClothesService {
     List<ClothesAttribute> clothesAttributes =
         clothesAttributeService.update(clothes, clothesUpdateRequest.attributes());
 
-    return makeClothesDto(clothes, clothesAttributes);
+    return clothesUtils.makeClothesDto(clothes, clothesAttributes);
 
 
   }
@@ -233,8 +193,6 @@ public class ClothesService {
    */
   @Transactional
   public void delete(UUID clothesId) {
-    //todo: 의상 삭제시 중간테이블 삭제 ->
-
     clothesRepository.findById(clothesId)
         .orElseThrow(() -> new ClothesNotFoundException().withId(clothesId));
     clothesRepository.deleteById(clothesId);
