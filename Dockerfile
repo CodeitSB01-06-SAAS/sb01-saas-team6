@@ -8,15 +8,17 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     adduser --disabled-password --gecos '' appuser
 
-# 권장: non-root 실행
-USER appuser
-
 WORKDIR /app
 
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
 
-RUN chmod +x ./gradlew && ./gradlew dependencies
+RUN chmod +x ./gradlew
+
+# 권장: non-root 실행
+USER appuser
+
+RUN ./gradlew dependencies
 
 COPY src ./src
 
