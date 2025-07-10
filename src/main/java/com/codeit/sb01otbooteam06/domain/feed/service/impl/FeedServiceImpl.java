@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FeedServiceImpl implements FeedService {
 
-  private final FeedQueryRepository feedQueryRepository;
   private final FeedRepository feedRepository;
   private final UserRepository userRepository;
   private final WeatherRepository weatherRepository;
@@ -65,7 +64,7 @@ public class FeedServiceImpl implements FeedService {
     feed.setClothesFeeds(clothesList);
     feedRepository.save(feed);
 
-    return FeedDto.fromEntity(feed, clothesMapper,weatherDtoMapper);
+    return FeedDto.fromEntity(feed, clothesMapper, weatherDtoMapper);
   }
 
   @Transactional(readOnly = true)
@@ -102,7 +101,7 @@ public class FeedServiceImpl implements FeedService {
       throw new OtbooException(ErrorCode.UNAUTHORIZED_FEED_ACCESS);
     }
 
-    if(!feedRepository.existsById(feedId)){
+    if (!feedRepository.existsById(feedId)) {
       throw new OtbooException(ErrorCode.FEED_NOT_FOUND);
     }
     feedRepository.deleteById(feedId);
@@ -111,7 +110,8 @@ public class FeedServiceImpl implements FeedService {
 
   @Transactional(readOnly = true)
   @Override
-  public FeedDtoCursorResponse getFeedsByCursor(String keyword, SkyStatus skyStatus, PrecipitationType precipitationType,
+  public FeedDtoCursorResponse getFeedsByCursor(String keyword, SkyStatus skyStatus,
+      PrecipitationType precipitationType,
       Instant cursorCreatedAt, UUID cursorId, Long cursorLikeCount, int size, String sortBy) {
 
     keyword = (keyword == null || keyword.isBlank()) ? null : keyword;
@@ -120,7 +120,7 @@ public class FeedServiceImpl implements FeedService {
     // 커서 값 설정 (정렬 기준에 따라)
     Object cursorValue = "likeCount".equalsIgnoreCase(sortBy) ? cursorLikeCount : cursorCreatedAt;
 
-    Page<Feed> resultPage = feedQueryRepository.findFeedsByCursorAndSort(
+    Page<Feed> resultPage = feedRepository.findFeedsByCursorAndSort(
         keyword,
         skyStatus,
         precipitationType,
@@ -145,7 +145,7 @@ public class FeedServiceImpl implements FeedService {
           : last.getCreatedAt().toString();
     }
 
-    long totalCount = feedQueryRepository.countByFilters(keyword, skyStatus, precipitationType);
+    long totalCount = feedRepository.countByFilters(keyword, skyStatus, precipitationType);
 
     return new FeedDtoCursorResponse(
         data,

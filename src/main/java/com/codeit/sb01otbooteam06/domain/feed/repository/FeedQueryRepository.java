@@ -6,19 +6,12 @@ import com.codeit.sb01otbooteam06.domain.weather.entity.SkyStatus;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
-@Repository
+
 public interface FeedQueryRepository {
 
-  Page<Feed> findFeedsByCursorAndSort(
-      String keyword,
-      SkyStatus skyStatus,
-      PrecipitationType precipitationType,
-      Object cursorValue,
-      UUID cursorId,
-      Pageable pageable
-  );
+  Page<Feed> findFeedsByCursorAndSort(String keyword, SkyStatus skyStatus,
+      PrecipitationType precipitationType, Object cursorValue, UUID cursorId, Pageable pageable);
 
   long countByFilters(String keyword, SkyStatus skyStatus, PrecipitationType precipitationType);
 }
