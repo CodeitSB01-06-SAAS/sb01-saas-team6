@@ -21,6 +21,9 @@ import com.codeit.sb01otbooteam06.domain.weather.entity.Weather;
 import com.codeit.sb01otbooteam06.domain.weather.exception.WeatherNotFoundException;
 import com.codeit.sb01otbooteam06.domain.weather.repository.WeatherRepository;
 import com.google.genai.Client;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.ThinkingConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,29 +80,10 @@ public class RecommendationService {
     //의상 추천에 필요한 가중치 계산
     int[] recoWeight = getWeightByAi(weatherData);
 
-    //gen-ai 클라이언트
-    Client client = new Client();
-
-//    long startTime = System.currentTimeMillis();
-//
-//    //todo: 생각 0으로 설정.
-//    GenerateContentResponse response =
-//        client.models.generateContent(
-//            "gemini-2.5-flash",
-//            //todo: text를 env에서 관리하기(프롬프트 비공개)
-//            "프롬프트 작성",
-//            null
-//        );
-//
-//    long endTime = System.currentTimeMillis();
-//
-//    System.out.println("response = " + response.text());
-//    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
-
     //todo: 추천의상 저장을 위한 테이블이 필요함.
     List<OotdDto> result = new ArrayList<>();
 
-    //todo: 현재 임시 ootd반환.
+    //todo: 현재 임시 ootd반환이며 수정 필요.
 
     return new RecommendationDto(weatherId, userId, getFakeClothes(user));
   }
@@ -171,8 +155,36 @@ public class RecommendationService {
   private int[] getWeightByAi(double[] weatherData) {
     //     * 의상 속성
 //     * 1. 두께감, 계절,안감 ,따뜻한 정도
-//     * */
-    //todo: 배열? 길이가 고정이기 때문에.
+
+    //gen-ai 클라이언트
+    Client client = new Client();
+
+    long startTime = System.currentTimeMillis();
+
+    //프롬프트
+    //todo: 프롬프트를 env에서 관리하기(프롬프트 비공개)
+    String prompt = String.format(
+        "현재 %d 월이고, 구름 상태는(숫자가 클수록 흐림, 최대 4) %d, 온도는 %.1f, 습도는 %.1f, 풍속은 %.1f, 사람의 온도 민감도는 (0: 추위 많이 탐 ~ 5: 더위 많이 탐) %d 야. 이때 의상에 대한 두께감(0~3, 두꺼움~얇음), 계절(0~3, 봄~겨울), 안감(0~2, 없음~기모), 따뜻한 정도(0~1, 따뜻함~시원함)를 생각해서 콤마로 구분해서 정수숫자만 출력해",
+        12, 1, weatherData[2], weatherData[3], weatherData[4],
+        3);
+
+    GenerateContentResponse response =
+        client.models.generateContent(
+            "gemini-2.5-flash",
+            prompt,
+            GenerateContentConfig.builder().
+                thinkingConfig(
+                    ThinkingConfig.builder().
+                        thinkingBudget(0) //사고 예산을 0으로 설정해 속도 올림.
+                        .build())
+                .build()
+        );
+
+    long endTime = System.currentTimeMillis();
+
+    System.out.println("response = " + response.text());
+    System.out.println("응답 생성 시간: " + (endTime - startTime) + " ms");
+
     int[] weight = new int[4];
 
     return weight;
