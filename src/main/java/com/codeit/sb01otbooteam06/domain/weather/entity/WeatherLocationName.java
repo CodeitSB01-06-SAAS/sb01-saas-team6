@@ -7,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "weather_location_names")
+@Table(
+    name = "weather_location_names",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"weather_id", "location_name"})
+)
 public class WeatherLocationName extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

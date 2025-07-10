@@ -133,12 +133,16 @@ public class WeatherService {
 
                 /* 4-2) 자연키로 먼저 찾아본다 */
                 Weather w = weatherRepository
-                    .findByForecastedAtAndForecastAtAndLocation_XAndLocation_Y(
-                        baseInst, fcstInst, grid.gridX(), grid.gridY())
+                    .findByForecastAtAndLocation_XAndLocation_Y(
+                        fcstInst, grid.gridX(), grid.gridY())
                     .orElseGet(() -> Weather.from(
                         baseInst, fcstInst,
                         Location.from(lat, lon, grid.gridX(), grid.gridY())));
 
+                // 발표 시각이 더 최신이면 덮어쓰기
+                if (baseInst.isAfter(w.getForecastedAt())) {
+                    w.refreshBaseIfNewer(baseInst);
+                }
                 /* 4-3) 메트릭 갱신 */
                 w.applyMetrics(
                     a.sky(), a.pty(),
@@ -151,8 +155,12 @@ public class WeatherService {
 
                 /* 4-4) 행정동 명칭은 한 번만 저장 */
                 if (w.getLocationNames().isEmpty()) {
-                    kakaoLocalClient.coordToRegion(lat, lon)
-                        .forEach(w::addLocationName);
+                    kakaoLocalClient.coordToRegion(lat, lon).forEach(name -> {
+                        if (w.getLocationNames().stream()
+                            .noneMatch(n -> n.getLocationName().equals(name))) {
+                            w.addLocationName(name);
+                        }
+                    });
                 }
 
                 /* 4-5) INSERT 또는 UPDATE */
