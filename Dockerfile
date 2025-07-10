@@ -15,10 +15,10 @@ COPY gradle ./gradle
 
 RUN chmod +x ./gradlew
 
+RUN ./gradlew dependencies --stacktrace --info
+
 # 권장: non-root 실행
 USER appuser
-
-RUN ./gradlew dependencies
 
 COPY src ./src
 
