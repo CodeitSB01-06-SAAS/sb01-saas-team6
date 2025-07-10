@@ -55,7 +55,7 @@ public class FeedDto {
     AuthorDto authorDto = AuthorDto.builder()
         .userId(author.getId())
         .name(author.getName())
-        .profileImageUrl(profile.getProfileImageUrl())
+        .profileImageUrl(profile != null ? profile.getProfileImageUrl() : null)
         .build();
 
     Weather weather = feed.getWeather();
