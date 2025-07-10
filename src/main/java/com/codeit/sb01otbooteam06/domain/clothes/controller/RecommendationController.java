@@ -21,7 +21,7 @@ public class RecommendationController {
   public ResponseEntity<RecommendationDto> getRecommendations(
       @RequestParam("weatherId") UUID weatherId
   ) {
-    RecommendationDto recommendationDto = recommendationService.create(weatherId);
+    RecommendationDto recommendationDto = recommendationService.recommend(weatherId);
     return ResponseEntity.ok(recommendationDto);
   }
 

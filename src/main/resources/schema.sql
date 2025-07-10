@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS
     attributes_defs,
     clothes,
     clothes_attributes,
+    recommend_clothes,
     clothes_feeds,
     comments,
     direct_messages,
@@ -220,6 +221,16 @@ CREATE TABLE clothes_attributes
     value        VARCHAR(40) NOT NULL,
     created_at   TIMESTAMP   NOT NULL,
     updated_at   TIMESTAMP NULL
+);
+
+-- 추천 의상 테이블
+CREATE TABLE recommend_clothes (
+   id UUID PRIMARY KEY,
+   weather_id UUID NOT NULL REFERENCES weathers(id),
+   user_id UUID NOT NULL REFERENCES users(id),
+   clothes_ids uuid[] NOT NULL,
+   created_at TIMESTAMP NOT NULL,
+   updated_at TIMESTAMP NULL
 );
 
 
